@@ -24,5 +24,7 @@
 #include <phpcpp.h>
 #include "tags.h"
 #include "date.h"
+#include "time.h"
+#include "datetime.h"
 
 #endif /* HPROSE_H_ */

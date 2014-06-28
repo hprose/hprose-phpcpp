@@ -13,7 +13,7 @@
  *                                                        *
  * hprose tags library for php-cpp.                       *
  *                                                        *
- * LastModified: Jun 24, 2014                             *
+ * LastModified: Jun 28, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -64,8 +64,8 @@ namespace Hprose {
 
     class Tags: public Php::Base {};
 
-    inline void publish_tags(Php::Namespace &ns) {
-        Php::Class<Hprose::Tags> tags("Tags");
+    inline void publish_tags(Php::Extension &ext) {
+        Php::Class<Hprose::Tags> tags("HproseTags");
 
         tags.property("TagInteger",     Hprose::TagInteger,     Php::Const);
         tags.property("TagLong",        Hprose::TagLong,        Php::Const);
@@ -104,7 +104,7 @@ namespace Hprose {
         tags.property("TagError",       Hprose::TagError,       Php::Const);
         tags.property("TagEnd",         Hprose::TagEnd,         Php::Const);
 
-        ns.add(std::move(tags));
+        ext.add(std::move(tags));
     }
 }
 #endif /* HPROSE_TAGS_H_ */

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose date class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 24, 2014                             *
+ * LastModified: Jun 28, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -25,12 +25,28 @@
 #include <time.h>
 
 namespace Hprose {
+    class DateTime;
 
     class Date: public Php::Base {
     private:
         static const int32_t days_to_month_365[13];
         static const int32_t days_to_month_366[13];
+        inline static bool add_days_to_year(int32_t &days,
+                                            int32_t &year,
+                                            const int32_t period,
+                                            const int32_t times) {
+            if ((days >= period) || (days <= -period)) {
+                int32_t remainder = days % period;
+                year += times * ((days - remainder) / period);
+                if (year < 1 || year > 9999) return false;
+                days = remainder;
+            }
+            return true;
+        }
+    protected:
         struct tm timebuf;
+        int32_t usec;
+        bool is_datetime;
         inline void init(const time_t timer) {
             localtime_r(&timer, &timebuf);
             utc = false;
@@ -45,18 +61,6 @@ namespace Hprose {
             else {
                 throw Php::Exception("Unexpected arguments");
             }
-        }
-        inline static bool add_days_to_year(int32_t &days,
-                                            int32_t &year,
-                                            const int32_t period,
-                                            const int32_t times) {
-            if ((days >= period) || (days <= -period)) {
-                int32_t remainder = days % period;
-                year += times * ((days - remainder) / period);
-                if (year < 1 || year > 9999) return false;
-                days = remainder;
-            }
-            return true;
         }
     public:
         bool utc;
@@ -84,18 +88,18 @@ namespace Hprose {
             }
             return false;
         }
-        Date() {}
+        Date() {
+            is_datetime = false;
+        }
         Date(const time_t *timer) {
             init(*timer);
+            is_datetime = false;
         }
-        Date(int32_t year, int32_t month, int32_t day) :
-            Date(year, month, day, false) {
-        }
-        Date(int32_t year, int32_t month, int32_t day, bool utc) {
+        Date(int32_t year, int32_t month, int32_t day, bool utc = false) {
             init(year, month, day, utc);
+            is_datetime = false;
         }
-        virtual ~Date() {
-        }
+        virtual ~Date() {}
         inline int32_t year() const {
             return timebuf.tm_year + 1900;
         }
@@ -104,6 +108,18 @@ namespace Hprose {
         }
         inline int32_t day() const {
             return timebuf.tm_mday;
+        }
+        inline int32_t hour() const {
+            return timebuf.tm_hour;
+        }
+        inline int32_t minute() const {
+            return timebuf.tm_min;
+        }
+        inline int32_t second() const {
+            return timebuf.tm_sec;
+        }
+        inline int32_t microsecond() const {
+            return usec;
         }
         inline void set_year(const int32_t year) {
             timebuf.tm_year = year - 1900;
@@ -114,11 +130,22 @@ namespace Hprose {
         inline void set_day(const int32_t day) {
             timebuf.tm_mday = day;
         }
+        inline void set_hour(const int32_t hour) {
+            timebuf.tm_hour = hour;
+        }
+        inline void set_minute(const int32_t minute) {
+            timebuf.tm_min = minute;
+        }
+        inline void set_second(const int32_t second) {
+            timebuf.tm_sec = second;
+        }
+        inline void set_microsecond(const int32_t microsecond) {
+            usec = microsecond;
+        }
         inline bool add_days(int32_t days) {
             if (days == 0) return true;
             int32_t y = year();
             if (!add_days_to_year(days, y, 146097, 400)) return false;
-            if (!add_days_to_year(days, y, 36524, 100)) return false;
             if (!add_days_to_year(days, y, 1461, 4)) return false;
             int32_t m = month();
             while (days >= 365) {
@@ -178,9 +205,14 @@ namespace Hprose {
             set_year(y);
             return true;
         }
-        virtual inline int format(char *str, bool fullformat = true) const {
-            const char *format = (fullformat ? "%04d-%02d-%02d"
-                                             : "%04d%02d%02d");
+        virtual inline double time() {
+            timebuf.tm_hour = 0;
+            timebuf.tm_min = 0;
+            timebuf.tm_sec = 0;
+            return (double)(utc ? timegm(&timebuf) : mktime(&timebuf));
+        }
+        inline int format(char *str, bool fullformat = true) const {
+            const char *format = fullformat ? "%04d-%02d-%02d" : "%04d%02d%02d";
             int n = sprintf(str, format, year(), month(), day());
             if (utc) {
                 str[n++] = 'Z';
@@ -192,12 +224,6 @@ namespace Hprose {
             char buffer[32];
             int n = format(buffer, fullformat);
             return std::string(buffer, n);
-        }
-        virtual inline time_t time() {
-            timebuf.tm_hour = 0;
-            timebuf.tm_min = 0;
-            timebuf.tm_sec = 0;
-            return utc ? timegm(&timebuf) : mktime(&timebuf);
         }
         inline int32_t day_of_week() const {
             return day_of_week(year(), month(), day());
@@ -217,20 +243,20 @@ namespace Hprose {
         // -----------------------------------------------------------
         // for PHP
         void __construct(Php::Parameters &params) {
+            is_datetime = false;
             size_t n = params.size();
             switch (n) {
                 case 0: {
-                    init(::time(0));
+                    init(::time(NULL));
                     break;
                 }
                 case 1: {
-                    Php::Value val = params[0];
+                    Php::Value &val = params[0];
                     if (val.isNumeric()) {
                         init(val.numericValue());
                     }
                     else if (val.isString()) {
                         init(Php::call("strtotime", val).numericValue());
-                        utc = false;
                     }
                     else if (val.isArray()) {
                         init(val.get("year", 4),
@@ -285,6 +311,62 @@ namespace Hprose {
         void setDay(const Php::Value &day) {
             set_day(day);
         }
+        Php::Value getHour() const {
+            if (is_datetime) {
+                return hour();
+            }
+            return Php::Base::__get("hour");
+        }
+        void setHour(const Php::Value &hour) {
+            if (is_datetime) {
+                set_hour(hour);
+            }
+            else {
+                Php::Base::__set("hour", hour);
+            }
+        }
+        Php::Value getMinute() const {
+            if (is_datetime) {
+                return minute();
+            }
+            return Php::Base::__get("minute");
+        }
+        void setMinute(const Php::Value &minute) {
+            if (is_datetime) {
+                set_minute(minute);
+            }
+            else {
+                Php::Base::__set("minute", minute);
+            }
+        }
+        Php::Value getSecond() const {
+            if (is_datetime) {
+                return second();
+            }
+            return Php::Base::__get("second");
+        }
+        void setSecond(const Php::Value &second) {
+            if (is_datetime) {
+                set_second(second);
+            }
+            else {
+                Php::Base::__set("second", second);
+            }
+        }
+        Php::Value getMicrosecond() const {
+            if (is_datetime) {
+                return usec;
+            }
+            return Php::Base::__get("microsecond");
+        }
+        void setMicrosecond(const Php::Value &microsecond) {
+            if (is_datetime) {
+                usec = microsecond;
+            }
+            else {
+                Php::Base::__set("microsecond", microsecond);
+            }
+        }
         Php::Value getUtc() const {
             return utc;
         }
@@ -292,44 +374,51 @@ namespace Hprose {
             this->utc = utc;
         }
         Php::Value addDays(Php::Parameters &params) {
-            if (params[0].isNumeric()) {
-                return add_days(params[0]);
+            Php::Value &val = params[0];
+            if (val.isNumeric()) {
+                return add_days(val);
             }
             return false;
         }
         Php::Value addMonths(Php::Parameters &params) {
-            if (params[0].isNumeric()) {
-                return add_months(params[0]);
+            Php::Value &val = params[0];
+            if (val.isNumeric()) {
+                return add_months(val);
             }
             return false;
         }
         Php::Value addYears(Php::Parameters &params) {
-            if (params[0].isNumeric()) {
-                return add_years(params[0]);
+            Php::Value &val = params[0];
+            if (val.isNumeric()) {
+                return add_years(val);
             }
             return false;
         }
+        Php::Value timestamp() {
+            return time();
+        }
         Php::Value toString(Php::Parameters &params) const {
-            bool fullformat = params.size() > 0 ? params[0].boolValue() : true;
+            bool fullformat = true;
+            if (params.size() > 0) {
+                fullformat = params[0];
+            }
             Php::Value result;
-            char *buffer = result.reserve(16);
+            char *buffer = result.reserve(32);
             int n = format(buffer, fullformat);
             result.reserve(n);
             return result;
         }
-        Php::Value timestamp() {
-            return (int64_t)time();
-        }
         Php::Value __toString() const {
             Php::Value result;
-            char *buffer = result.reserve(16);
+            char *buffer = result.reserve(32);
             int n = format(buffer);
             result.reserve(n);
             return result;
         }
         static Php::Value isLeapYear(Php::Parameters &params) {
-            if (params[0].isNumeric()) {
-                return is_leap_year(params[0]);
+            Php::Value &val = params[0];
+            if (val.isNumeric()) {
+                return is_leap_year(val);
             }
             return false;
         }
@@ -358,63 +447,80 @@ namespace Hprose {
                 return day_of_year();
             }
         }
+        friend class DateTime;
     };
-    inline void publish_date(Php::Namespace &ns) {
-        Php::Class<Hprose::Date> date("Date");
-        date.method("__construct",
-                    &Hprose::Date::__construct,
-                     { Php::ByVal("arg1", Php::Type::Null, false),
-                       Php::ByVal("arg2", Php::Type::Numeric, false),
-                       Php::ByVal("arg3", Php::Type::Numeric, false),
-                       Php::ByVal("arg4", Php::Type::Bool, false) });
-        date.property("year", &Hprose::Date::getYear, &Hprose::Date::setYear);
-        date.property("month", &Hprose::Date::getMonth, &Hprose::Date::setMonth);
-        date.property("day", &Hprose::Date::getDay, &Hprose::Date::setDay);
-        date.property("utc", &Hprose::Date::getUtc, &Hprose::Date::setUtc);
-        date.method("addDays",
-                    &Hprose::Date::addDays,
-                     { Php::ByVal("days", Php::Type::Numeric) });
-        date.method("addMonths",
-                    &Hprose::Date::addMonths,
-                     { Php::ByVal("months", Php::Type::Numeric) });
-        date.method("addYears",
-                    &Hprose::Date::addYears,
-                     { Php::ByVal("years", Php::Type::Numeric) });
-        date.method("timestamp", &Hprose::Date::timestamp);
-        date.method("toString",
-                    &Hprose::Date::toString,
-                     { Php::ByVal("fullformat", Php::Type::Bool, false) });
-        date.method("__toString", &Hprose::Date::__toString);
-        date.method("isLeapYear",
-                    &Hprose::Date::isLeapYear,
-                    Php::Public | Php::Static,
-                    { Php::ByVal("days", Php::Type::Numeric) });
-        date.method("daysInMonth",
-                    &Hprose::Date::daysInMonth,
-                    Php::Public | Php::Static,
-                    { Php::ByVal("year", Php::Type::Numeric),
-                      Php::ByVal("month", Php::Type::Numeric) });
-        date.method("daysInYear",
-                    &Hprose::Date::daysInYear,
-                    Php::Public | Php::Static,
-                    { Php::ByVal("year", Php::Type::Numeric) });
-        date.method("isValidDate",
-                    &Hprose::Date::isLeapYear,
-                    Php::Public | Php::Static,
-                    { Php::ByVal("year", Php::Type::Numeric),
-                      Php::ByVal("month", Php::Type::Numeric),
-                      Php::ByVal("day", Php::Type::Numeric) });
-        date.method("dayOfWeek",
-                    &Hprose::Date::dayOfWeek,
-                    { Php::ByVal("year", Php::Type::Numeric, false),
-                      Php::ByVal("month", Php::Type::Numeric, false),
-                      Php::ByVal("day", Php::Type::Numeric, false) });
-        date.method("dayOfYear",
-                    &Hprose::Date::dayOfYear,
-                    { Php::ByVal("year", Php::Type::Numeric, false),
-                      Php::ByVal("month", Php::Type::Numeric, false),
-                      Php::ByVal("day", Php::Type::Numeric, false) });
-        ns.add(std::move(date));
+
+    inline Php::Class<Hprose::Date> publish_date(Php::Extension &ext) {
+        Php::Class<Hprose::Date> c("HproseDate");
+        c.property("year", &Hprose::Date::getYear, &Hprose::Date::setYear)
+        .property("month", &Hprose::Date::getMonth, &Hprose::Date::setMonth)
+        .property("day", &Hprose::Date::getDay, &Hprose::Date::setDay)
+        .property("utc", &Hprose::Date::getUtc, &Hprose::Date::setUtc)
+        .property("hour", &Hprose::Date::getHour, &Hprose::Date::setHour)
+        .property("minute", &Hprose::Date::getMinute, &Hprose::Date::setMinute)
+        .property("second", &Hprose::Date::getSecond, &Hprose::Date::setSecond)
+        .property("microsecond", &Hprose::Date::getMicrosecond, &Hprose::Date::setMicrosecond)
+        .method("__construct",
+                &Hprose::Date::__construct,
+                {
+                    Php::ByVal("arg1", Php::Type::Null, false),
+                    Php::ByVal("arg2", Php::Type::Numeric, false),
+                    Php::ByVal("arg3", Php::Type::Numeric, false),
+                    Php::ByVal("arg4", Php::Type::Bool, false)
+                })
+        .method("addDays",
+                &Hprose::Date::addDays,
+                { Php::ByVal("days", Php::Type::Numeric) })
+        .method("addMonths",
+                &Hprose::Date::addMonths,
+                { Php::ByVal("months", Php::Type::Numeric) })
+        .method("addYears",
+                &Hprose::Date::addYears,
+                { Php::ByVal("years", Php::Type::Numeric) })
+        .method("timestamp", &Hprose::Date::timestamp)
+        .method("toString",
+                &Hprose::Date::toString,
+                { Php::ByVal("fullformat", Php::Type::Bool, false) })
+        .method("__toString", &Hprose::Date::__toString)
+        .method("isLeapYear",
+                &Hprose::Date::isLeapYear,
+                Php::Public | Php::Static,
+                { Php::ByVal("days", Php::Type::Numeric) })
+        .method("daysInMonth",
+                &Hprose::Date::daysInMonth,
+                Php::Public | Php::Static,
+                 {
+                    Php::ByVal("year", Php::Type::Numeric),
+                    Php::ByVal("month", Php::Type::Numeric)
+                 })
+        .method("daysInYear",
+                &Hprose::Date::daysInYear,
+                Php::Public | Php::Static,
+                { Php::ByVal("year", Php::Type::Numeric) })
+        .method("isValidDate",
+                &Hprose::Date::isValidDate,
+                Php::Public | Php::Static,
+                {
+                    Php::ByVal("year", Php::Type::Numeric),
+                    Php::ByVal("month", Php::Type::Numeric),
+                    Php::ByVal("day", Php::Type::Numeric)
+                })
+        .method("dayOfWeek",
+                &Hprose::Date::dayOfWeek,
+                {
+                    Php::ByVal("year", Php::Type::Numeric, false),
+                    Php::ByVal("month", Php::Type::Numeric, false),
+                    Php::ByVal("day", Php::Type::Numeric, false)
+                })
+        .method("dayOfYear",
+                &Hprose::Date::dayOfYear,
+                {
+                    Php::ByVal("year", Php::Type::Numeric, false),
+                    Php::ByVal("month", Php::Type::Numeric, false),
+                    Php::ByVal("day", Php::Type::Numeric, false)
+                });
+        ext.add(c);
+        return c;
     }
 }
 

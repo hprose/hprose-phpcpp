@@ -128,10 +128,7 @@ ${OBJECTS}:
 
 install:
 						${CP} ${EXTENSION} ${EXTENSION_DIR}
-						@echo
-						@echo "Install complete."
-						@echo "Don't forget to add 'extension=hprose.so' to php.ini."
-#						${CP} ${INI} ${INI_DIR}
+						${CP} ${INI} ${INI_DIR}
 
 clean:
 						${RM} ${EXTENSION} ${OBJECTS}

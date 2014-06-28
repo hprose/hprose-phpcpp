@@ -29,3 +29,24 @@ It is a modern, lightweight, cross-language, cross-platform, object-oriented, hi
 Through *Hprose*, You can conveniently and efficiently intercommunicate between those programming languages.
 
 This project is the implementation of Hprose for PHP-CPP.
+
+## How to install
+
+At first, you should install [PHP-CPP](http://www.php-cpp.com/documentation/install).
+
+Then, if you use linux, run:
+
+    make && sudo make install
+
+That was it!
+
+if you use Mac OS X, you need use:
+
+    make -f Makefile.osx
+    sudo make install -f Makefile.osx
+
+to build and install it. then add
+
+    extension=hprose.so
+
+to php.ini by yourself.

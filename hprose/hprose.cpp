@@ -13,7 +13,7 @@
  *                                                        *
  * hprose for php-cpp.                                    *
  *                                                        *
- * LastModified: Jun 24, 2014                             *
+ * LastModified: Jun 28, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,16 +26,13 @@ extern "C" {
 
         static Php::Extension extension("hprose", "1.4.0");
 
-        Php::Namespace hprose("Hprose");
-
-        Hprose::publish_tags(hprose);
-        Hprose::publish_date(hprose);
+        Hprose::publish_tags(extension);
+        Hprose::publish_datetime(extension, Hprose::publish_date(extension));
+        Hprose::publish_time(extension);
 
         // extension.add("hprose\\serialize", hprose_serialize, {
         //     Php::ByRef("val", Php::Type::Null)
         // });
-
-        extension.add(std::move(hprose));
 
         return extension;
     }
