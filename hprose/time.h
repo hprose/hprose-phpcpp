@@ -13,7 +13,7 @@
  *                                                        *
  * hprose time class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 28, 2014                             *
+ * LastModified: Jun 29, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -73,7 +73,7 @@ namespace Hprose {
              int32_t microsecond = 0, bool utc = false) :
          hour(hour), minute(minute), second(second), microsecond(microsecond), utc(utc) {}
         virtual ~Time() {}
-        inline double time() {
+        inline double time() const {
             struct tm timebuf;
             timebuf.tm_year = 70;
             timebuf.tm_mon = 0;
@@ -133,8 +133,8 @@ namespace Hprose {
                              val.get("minutes", 7),
                              val.get("seconds", 7));
                     }
-                    else if (val.isObject() && Php::call("is_a", val, "Hprose\\Time")) {
-                        Time *time = val.implementation<Time>();
+                    else if (val.isObject() && Php::call("is_a", val, "HproseTime")) {
+                        Time *time = (Time *)val.implementation();
                         init(time->hour,
                              time->minute,
                              time->second,
@@ -190,7 +190,7 @@ namespace Hprose {
         void setUtc(const Php::Value &utc) {
             this->utc = utc;
         }
-        Php::Value timestamp() {
+        Php::Value timestamp() const {
             return time();
         }
         Php::Value toString(Php::Parameters &params) const {

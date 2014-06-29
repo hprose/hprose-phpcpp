@@ -13,7 +13,7 @@
  *                                                        *
  * hprose datetime class for php-cpp.                     *
  *                                                        *
- * LastModified: Jun 28, 2014                             *
+ * LastModified: Jun 29, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -117,6 +117,57 @@ namespace Hprose {
             }
             return false;
         }
+        inline bool after(const DateTime *when) const {
+            if (utc != when->utc) return time() > when->time();
+            if (year() < when->year()) return false;
+            if (year() > when->year()) return true;
+            if (month() < when->month()) return false;
+            if (month() > when->month()) return true;
+            if (day() < when->day()) return false;
+            if (day() > when->day()) return true;
+            if (hour() < when->hour()) return false;
+            if (hour() > when->hour()) return true;
+            if (minute() < when->minute()) return false;
+            if (minute() > when->minute()) return true;
+            if (second() < when->second()) return false;
+            if (second() > when->second()) return true;
+            if (microsecond() < when->microsecond()) return false;
+            if (microsecond() > when->microsecond()) return true;
+            return false;
+        }
+        inline bool before(const DateTime *when) const {
+            if (utc != when->utc) return time() < when->time();
+            if (year() < when->year()) return true;
+            if (year() > when->year()) return false;
+            if (month() < when->month()) return true;
+            if (month() > when->month()) return false;
+            if (day() < when->day()) return true;
+            if (day() > when->day()) return false;
+            if (hour() < when->hour()) return true;
+            if (hour() > when->hour()) return false;
+            if (minute() < when->minute()) return true;
+            if (minute() > when->minute()) return false;
+            if (second() < when->second()) return true;
+            if (second() > when->second()) return false;
+            if (microsecond() < when->microsecond()) return true;
+            if (microsecond() > when->microsecond()) return false;
+            return false;
+        }
+        inline bool equals(const DateTime *when) const {
+            if (utc != when->utc) return time() == when->time();
+            return (year() == when->year() &&
+                    month() == when->month() &&
+                    day() == when->day() &&
+                    hour() == when->hour() &&
+                    minute() == when->minute() &&
+                    second() == when->second() &&
+                    microsecond() == when->microsecond());
+        }
+        inline double time() const {
+            static tm tb = timebuf;
+            return ((double)(utc ? timegm(&tb) : mktime(&tb)) +
+                    (double)microsecond() / 1000000.0);
+        }
         inline int format(char *str, bool fullformat = true) const {
             const char *format;
             int n;
@@ -137,6 +188,11 @@ namespace Hprose {
                 str[n] = 0;
             }
             return n;
+        }
+        inline std::string to_string(bool fullformat = true) const {
+            char buffer[32];
+            int n = format(buffer, fullformat);
+            return std::string(buffer, n);
         }
         // -----------------------------------------------------------
         // for PHP
@@ -171,18 +227,18 @@ namespace Hprose {
                                   val.get("seconds", 7));
                     }
                     else if (val.isObject()) {
-                        if (Php::call("is_a", val, "Hprose\\DateTime")) {
-                            DateTime *datetime = val.implementation<DateTime>();
+                        if (Php::call("is_a", val, "HproseDateTime")) {
+                            DateTime *datetime = (DateTime *)val.implementation();
                             timebuf = datetime->timebuf;
                             usec = datetime->usec;
                         }
-                        else if (Php::call("is_a", val, "Hprose\\Date")) {
-                            Date *date = val.implementation<Date>();
+                        else if (Php::call("is_a", val, "HproseDate")) {
+                            Date *date = (Date *)val.implementation();
                             timebuf = date->timebuf;
                             init_time(0, 0, 0, 0);
                         }
-                        else if (Php::call("is_a", val, "Hprose\\Time")) {
-                            Time *time = val.implementation<Time>();
+                        else if (Php::call("is_a", val, "HproseTime")) {
+                            Time *time = (Time *)val.implementation();
                             init(1970, 1, 1, time->utc);
                             init_time(time->hour, time->minute, time->second, time->microsecond);
                         }
@@ -198,12 +254,12 @@ namespace Hprose {
                 case 2: {
                     Php::Value &v1 = params[0], &v2 = params[1];
                     if (v1.isObject() && v2.isObject() &&
-                        Php::call("is_a", v1, "Hprose\\Date") &&
-                        Php::call("is_a", v2, "Hprose\\Time")) {
-                        Date *date = v1.implementation<Date>();
+                        Php::call("is_a", v1, "HproseDate") &&
+                        Php::call("is_a", v2, "HproseTime")) {
+                        Date *date = (Date *)v1.implementation();
                         timebuf = date->timebuf;
                         utc = date->utc;
-                        Time *time = v2.implementation<Time>();
+                        Time *time = (Time *)v2.implementation();
                         init_time(time->hour, time->minute, time->second, time->microsecond);
                     }
                     else {
@@ -269,6 +325,30 @@ namespace Hprose {
             }
             return false;
         }
+        Php::Value timestamp() const {
+            return time();
+        }
+        Php::Value after(Php::Parameters &params) const {
+            Php::Value &val = params[0];
+            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+                val = Php::Object("HproseDateTime", val);
+            }
+            return after((DateTime *)val.implementation());
+        }
+        Php::Value before(Php::Parameters &params) const {
+            Php::Value &val = params[0];
+            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+                val = Php::Object("HproseDateTime", val);
+            }
+            return before((DateTime *)val.implementation());
+        }
+        Php::Value equals(Php::Parameters &params) const {
+            Php::Value &val = params[0];
+            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+                val = Php::Object("HproseDateTime", val);
+            }
+            return equals((DateTime *)val.implementation());
+        }
         Php::Value toString(Php::Parameters &params) const {
             bool fullformat = true;
             if (params.size() > 0) {
@@ -310,12 +390,21 @@ namespace Hprose {
                 &Hprose::DateTime::addSeconds,
                 { Php::ByVal("seconds", Php::Type::Numeric) })
         .method("addMinutes",
-                 &Hprose::DateTime::addMinutes,
-                 { Php::ByVal("minutes", Php::Type::Numeric) })
+                &Hprose::DateTime::addMinutes,
+                { Php::ByVal("minutes", Php::Type::Numeric) })
         .method("addHours",
                 &Hprose::DateTime::addHours,
                 { Php::ByVal("hours", Php::Type::Numeric) })
-//        .method("timestamp", &Hprose::DateTime::timestamp)
+        .method("after",
+                &Hprose::DateTime::after,
+                { Php::ByVal("when", Php::Type::Null) })
+        .method("before",
+                &Hprose::DateTime::before,
+                { Php::ByVal("when", Php::Type::Null) })
+        .method("equals",
+                &Hprose::DateTime::equals,
+                { Php::ByVal("when", Php::Type::Null) })
+        .method("timestamp", &Hprose::DateTime::timestamp)
         .method("toString",
                 &Hprose::DateTime::toString,
                 { Php::ByVal("fullformat", Php::Type::Bool, false) })

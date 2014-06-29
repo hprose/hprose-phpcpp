@@ -29,6 +29,7 @@ extern "C" {
         Hprose::publish_tags(extension);
         Hprose::publish_datetime(extension, Hprose::publish_date(extension));
         Hprose::publish_time(extension);
+        Hprose::publish_stringstream(extension);
 
         // extension.add("hprose\\serialize", hprose_serialize, {
         //     Php::ByRef("val", Php::Type::Null)

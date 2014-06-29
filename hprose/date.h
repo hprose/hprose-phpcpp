@@ -13,7 +13,7 @@
  *                                                        *
  * hprose date class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 28, 2014                             *
+ * LastModified: Jun 29, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -205,11 +205,12 @@ namespace Hprose {
             set_year(y);
             return true;
         }
-        virtual inline double time() {
-            timebuf.tm_hour = 0;
-            timebuf.tm_min = 0;
-            timebuf.tm_sec = 0;
-            return (double)(utc ? timegm(&timebuf) : mktime(&timebuf));
+        inline double time() const {
+            struct tm tb = timebuf;
+            tb.tm_hour = 0;
+            tb.tm_min = 0;
+            tb.tm_sec = 0;
+            return (double)(utc ? timegm(&tb) : mktime(&tb));
         }
         inline int format(char *str, bool fullformat = true) const {
             const char *format = fullformat ? "%04d-%02d-%02d" : "%04d%02d%02d";
@@ -265,14 +266,8 @@ namespace Hprose {
                              false);
                     }
                     else if (val.isObject()) {
-                        if (Php::call("is_a", val, "Hprose\\Date")) {
+                        if (Php::call("is_a", val, "HproseDate")) {
                             timebuf = ((Hprose::Date *) val.implementation())->timebuf;
-                        }
-                        else if (Php::call("is_a", val, "HproseDate")) {
-                            init(val.get("year", 4),
-                                 val.get("month", 5),
-                                 val.get("day", 3),
-                                 val.get("utc", 3));
                         }
                         else {
                             throw Php::Exception("Unexpected arguments");
@@ -394,7 +389,7 @@ namespace Hprose {
             }
             return false;
         }
-        Php::Value timestamp() {
+        Php::Value timestamp() const {
             return time();
         }
         Php::Value toString(Php::Parameters &params) const {
