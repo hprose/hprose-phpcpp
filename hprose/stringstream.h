@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jun 29, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -192,42 +192,42 @@ namespace Hprose {
     inline void publish_stringstream(Php::Extension &ext) {
         Php::Class<Hprose::StringStream> c("HproseStringStream");
         c.method("__construct",
-                &Hprose::StringStream::__construct,
-                { Php::ByVal("str", Php::Type::String, false) })
-        .method("init",
-                &Hprose::StringStream::init,
-                { Php::ByVal("str", Php::Type::String) })
-        .method("close", &Hprose::StringStream::close)
-        .method("length", &Hprose::StringStream::length)
-        .method("getc", &Hprose::StringStream::getc)
-        .method("read",
-                &Hprose::StringStream::read,
-                { Php::ByVal("length", Php::Type::Numeric) })
-        .method("readfull", &Hprose::StringStream::readfull)
-        .method("readuntil",
-                &Hprose::StringStream::readuntil,
-                { Php::ByVal("tag", Php::Type::String) })
-        .method("seek",
-                &Hprose::StringStream::seek,
-                {
-                    Php::ByVal("offset", Php::Type::Numeric),
-                    Php::ByVal("whence", Php::Type::Numeric, false)
-                })
-        .method("mark", &Hprose::StringStream::mark)
-        .method("unmark", &Hprose::StringStream::unmark)
-        .method("reset", &Hprose::StringStream::reset)
-        .method("skip",
-                &Hprose::StringStream::skip,
-                { Php::ByVal("n", Php::Type::Numeric) })
-        .method("eof", &Hprose::StringStream::eof)
-        .method("write",
-                &Hprose::StringStream::write,
-                {
-                    Php::ByVal("value", Php::Type::Null),
-                    Php::ByVal("length", Php::Type::Numeric, false)
-                })
-        .method("toString", &Hprose::StringStream::toString)
-        .method("__toString", &Hprose::StringStream::__toString);
+                 &Hprose::StringStream::__construct,
+                 { Php::ByVal("str", Php::Type::String, false) })
+         .method("init",
+                 &Hprose::StringStream::init,
+                 { Php::ByVal("str", Php::Type::String) })
+         .method("close", &Hprose::StringStream::close)
+         .method("length", &Hprose::StringStream::length)
+         .method("getc", &Hprose::StringStream::getc)
+         .method("read",
+                 &Hprose::StringStream::read,
+                 { Php::ByVal("length", Php::Type::Numeric) })
+         .method("readfull", &Hprose::StringStream::readfull)
+         .method("readuntil",
+                 &Hprose::StringStream::readuntil,
+                 { Php::ByVal("tag", Php::Type::String) })
+         .method("seek",
+                 &Hprose::StringStream::seek,
+                 {
+                     Php::ByVal("offset", Php::Type::Numeric),
+                     Php::ByVal("whence", Php::Type::Numeric, false)
+                 })
+         .method("mark", &Hprose::StringStream::mark)
+         .method("unmark", &Hprose::StringStream::unmark)
+         .method("reset", &Hprose::StringStream::reset)
+         .method("skip",
+                 &Hprose::StringStream::skip,
+                 { Php::ByVal("n", Php::Type::Numeric) })
+         .method("eof", &Hprose::StringStream::eof)
+         .method("write",
+                 &Hprose::StringStream::write,
+                 {
+                     Php::ByVal("value", Php::Type::Null),
+                     Php::ByVal("length", Php::Type::Numeric, false)
+                 })
+         .method("toString", &Hprose::StringStream::toString)
+         .method("__toString", &Hprose::StringStream::__toString);
         ext.add(std::move(c));
     }
 }

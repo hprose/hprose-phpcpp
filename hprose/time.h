@@ -13,7 +13,7 @@
  *                                                        *
  * hprose time class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 29, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -221,31 +221,33 @@ namespace Hprose {
         }
     };
     inline void publish_time(Php::Extension &ext) {
-        Php::Class<Hprose::Time> time("HproseTime");
-        time.method("__construct",
+        Php::Class<Hprose::Time> c("HproseTime");
+        c.method("__construct",
                     &Hprose::Time::__construct,
                     { Php::ByVal("arg1", Php::Type::Null, false),
                       Php::ByVal("arg2", Php::Type::Numeric, false),
                       Php::ByVal("arg3", Php::Type::Numeric, false),
                       Php::ByVal("arg4", Php::Type::Numeric, false),
-                      Php::ByVal("arg5", Php::Type::Bool, false) });
-        time.property("hour", &Hprose::Time::getHour, &Hprose::Time::setHour);
-        time.property("minute", &Hprose::Time::getMinute, &Hprose::Time::setMinute);
-        time.property("second", &Hprose::Time::getSecond, &Hprose::Time::setSecond);
-        time.property("utc", &Hprose::Time::getUtc, &Hprose::Time::setUtc);
-        time.method("timestamp", &Hprose::Time::timestamp);
-        time.method("toString",
-                    &Hprose::Time::toString,
-                    { Php::ByVal("fullformat", Php::Type::Bool, false) });
-        time.method("__toString", &Hprose::Time::__toString);
-        time.method("isValidTime",
-                    &Hprose::Time::isValidTime,
-                    Php::Public | Php::Static,
-                    { Php::ByVal("hour", Php::Type::Numeric),
-                      Php::ByVal("minute", Php::Type::Numeric),
-                      Php::ByVal("second", Php::Type::Numeric),
-                      Php::ByVal("microsecond", Php::Type::Numeric, false) });
-        ext.add(std::move(time));
+                      Php::ByVal("arg5", Php::Type::Bool, false) })
+         .property("hour", &Hprose::Time::getHour, &Hprose::Time::setHour)
+         .property("minute", &Hprose::Time::getMinute, &Hprose::Time::setMinute)
+         .property("second", &Hprose::Time::getSecond, &Hprose::Time::setSecond)
+         .property("utc", &Hprose::Time::getUtc, &Hprose::Time::setUtc)
+         .method("timestamp", &Hprose::Time::timestamp)
+         .method("toString",
+                 &Hprose::Time::toString,
+                 { Php::ByVal("fullformat", Php::Type::Bool, false) })
+         .method("__toString", &Hprose::Time::__toString)
+         .method("isValidTime",
+                 &Hprose::Time::isValidTime,
+                 Php::Public | Php::Static,
+                 {
+                     Php::ByVal("hour", Php::Type::Numeric),
+                     Php::ByVal("minute", Php::Type::Numeric),
+                     Php::ByVal("second", Php::Type::Numeric),
+                     Php::ByVal("microsecond", Php::Type::Numeric, false)
+                 });
+        ext.add(std::move(c));
     }
 }
 

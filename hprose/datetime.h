@@ -13,7 +13,7 @@
  *                                                        *
  * hprose datetime class for php-cpp.                     *
  *                                                        *
- * LastModified: Jun 29, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -371,9 +371,9 @@ namespace Hprose {
     inline void publish_datetime(Php::Extension &ext, Php::Class<Hprose::Date> p) {
         Php::Class<Hprose::DateTime> c("HproseDateTime");
         c.extends(p)
-        .method("__construct",
-                &Hprose::DateTime::__construct,
-                {
+         .method("__construct",
+                 &Hprose::DateTime::__construct,
+                 {
                      Php::ByVal("arg1", Php::Type::Null, false),
                      Php::ByVal("arg2", Php::Type::Numeric, false),
                      Php::ByVal("arg3", Php::Type::Numeric, false),
@@ -382,42 +382,42 @@ namespace Hprose {
                      Php::ByVal("arg6", Php::Type::Numeric, false),
                      Php::ByVal("arg7", Php::Type::Numeric, false),
                      Php::ByVal("arg8", Php::Type::Bool, false)
-                })
-        .method("addMicroseconds",
-                &Hprose::DateTime::addMicroseconds,
-                { Php::ByVal("microseconds", Php::Type::Numeric) })
-        .method("addSeconds",
-                &Hprose::DateTime::addSeconds,
-                { Php::ByVal("seconds", Php::Type::Numeric) })
-        .method("addMinutes",
-                &Hprose::DateTime::addMinutes,
-                { Php::ByVal("minutes", Php::Type::Numeric) })
-        .method("addHours",
-                &Hprose::DateTime::addHours,
-                { Php::ByVal("hours", Php::Type::Numeric) })
-        .method("after",
-                &Hprose::DateTime::after,
-                { Php::ByVal("when", Php::Type::Null) })
-        .method("before",
-                &Hprose::DateTime::before,
-                { Php::ByVal("when", Php::Type::Null) })
-        .method("equals",
-                &Hprose::DateTime::equals,
-                { Php::ByVal("when", Php::Type::Null) })
-        .method("timestamp", &Hprose::DateTime::timestamp)
-        .method("toString",
-                &Hprose::DateTime::toString,
-                { Php::ByVal("fullformat", Php::Type::Bool, false) })
-        .method("__toString", &Hprose::DateTime::__toString)
-        .method("isValidTime",
-                &Hprose::Time::isValidTime,
-                Php::Public | Php::Static,
-                {
-                    Php::ByVal("hour", Php::Type::Numeric),
-                    Php::ByVal("minute", Php::Type::Numeric),
-                    Php::ByVal("second", Php::Type::Numeric),
-                    Php::ByVal("microsecond", Php::Type::Numeric, false)
-                });
+                 })
+         .method("addMicroseconds",
+                 &Hprose::DateTime::addMicroseconds,
+                 { Php::ByVal("microseconds", Php::Type::Numeric) })
+         .method("addSeconds",
+                 &Hprose::DateTime::addSeconds,
+                 { Php::ByVal("seconds", Php::Type::Numeric) })
+         .method("addMinutes",
+                 &Hprose::DateTime::addMinutes,
+                 { Php::ByVal("minutes", Php::Type::Numeric) })
+         .method("addHours",
+                 &Hprose::DateTime::addHours,
+                 { Php::ByVal("hours", Php::Type::Numeric) })
+         .method("after",
+                 &Hprose::DateTime::after,
+                 { Php::ByVal("when", Php::Type::Null) })
+         .method("before",
+                 &Hprose::DateTime::before,
+                 { Php::ByVal("when", Php::Type::Null) })
+         .method("equals",
+                 &Hprose::DateTime::equals,
+                 { Php::ByVal("when", Php::Type::Null) })
+         .method("timestamp", &Hprose::DateTime::timestamp)
+         .method("toString",
+                 &Hprose::DateTime::toString,
+                 { Php::ByVal("fullformat", Php::Type::Bool, false) })
+         .method("__toString", &Hprose::DateTime::__toString)
+         .method("isValidTime",
+                 &Hprose::Time::isValidTime,
+                 Php::Public | Php::Static,
+                 {
+                     Php::ByVal("hour", Php::Type::Numeric),
+                     Php::ByVal("minute", Php::Type::Numeric),
+                     Php::ByVal("second", Php::Type::Numeric),
+                     Php::ByVal("microsecond", Php::Type::Numeric, false)
+                 });
         ext.add(std::move(c));
     }
 

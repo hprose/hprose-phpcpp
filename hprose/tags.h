@@ -13,7 +13,7 @@
  *                                                        *
  * hprose tags library for php-cpp.                       *
  *                                                        *
- * LastModified: Jun 28, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -65,46 +65,46 @@ namespace Hprose {
     class Tags: public Php::Base {};
 
     inline void publish_tags(Php::Extension &ext) {
-        Php::Class<Hprose::Tags> tags("HproseTags");
+        Php::Class<Hprose::Tags> c("HproseTags");
 
-        tags.property("TagInteger",     Hprose::TagInteger,     Php::Const);
-        tags.property("TagLong",        Hprose::TagLong,        Php::Const);
-        tags.property("TagDouble",      Hprose::TagDouble,      Php::Const);
-        tags.property("TagNull",        Hprose::TagNull,        Php::Const);
-        tags.property("TagEmpty",       Hprose::TagEmpty,       Php::Const);
-        tags.property("TagTrue",        Hprose::TagTrue,        Php::Const);
-        tags.property("TagFalse",       Hprose::TagFalse,       Php::Const);
-        tags.property("TagNaN",         Hprose::TagNaN,         Php::Const);
-        tags.property("TagInfinity",    Hprose::TagInfinity,    Php::Const);
-        tags.property("TagDate",        Hprose::TagDate,        Php::Const);
-        tags.property("TagTime",        Hprose::TagTime,        Php::Const);
-        tags.property("TagUTC",         Hprose::TagUTC,         Php::Const);
-        tags.property("TagBytes",       Hprose::TagBytes,       Php::Const);
-        tags.property("TagUTF8Char",    Hprose::TagUTF8Char,    Php::Const);
-        tags.property("TagString",      Hprose::TagString,      Php::Const);
-        tags.property("TagGuid",        Hprose::TagGuid,        Php::Const);
-        tags.property("TagList",        Hprose::TagList,        Php::Const);
-        tags.property("TagMap",         Hprose::TagMap,         Php::Const);
-        tags.property("TagClass",       Hprose::TagClass,       Php::Const);
-        tags.property("TagObject",      Hprose::TagObject,      Php::Const);
-        tags.property("TagRef",         Hprose::TagRef,         Php::Const);
+        c.property("TagInteger",     Hprose::TagInteger,     Php::Const)
+         .property("TagLong",        Hprose::TagLong,        Php::Const)
+         .property("TagDouble",      Hprose::TagDouble,      Php::Const)
+         .property("TagNull",        Hprose::TagNull,        Php::Const)
+         .property("TagEmpty",       Hprose::TagEmpty,       Php::Const)
+         .property("TagTrue",        Hprose::TagTrue,        Php::Const)
+         .property("TagFalse",       Hprose::TagFalse,       Php::Const)
+         .property("TagNaN",         Hprose::TagNaN,         Php::Const)
+         .property("TagInfinity",    Hprose::TagInfinity,    Php::Const)
+         .property("TagDate",        Hprose::TagDate,        Php::Const)
+         .property("TagTime",        Hprose::TagTime,        Php::Const)
+         .property("TagUTC",         Hprose::TagUTC,         Php::Const)
+         .property("TagBytes",       Hprose::TagBytes,       Php::Const)
+         .property("TagUTF8Char",    Hprose::TagUTF8Char,    Php::Const)
+         .property("TagString",      Hprose::TagString,      Php::Const)
+         .property("TagGuid",        Hprose::TagGuid,        Php::Const)
+         .property("TagList",        Hprose::TagList,        Php::Const)
+         .property("TagMap",         Hprose::TagMap,         Php::Const)
+         .property("TagClass",       Hprose::TagClass,       Php::Const)
+         .property("TagObject",      Hprose::TagObject,      Php::Const)
+         .property("TagRef",         Hprose::TagRef,         Php::Const)
 
-        tags.property("TagPos",         Hprose::TagPos,         Php::Const);
-        tags.property("TagNeg",         Hprose::TagNeg,         Php::Const);
-        tags.property("TagSemicolon",   Hprose::TagSemicolon,   Php::Const);
-        tags.property("TagOpenbrace",   Hprose::TagOpenbrace,   Php::Const);
-        tags.property("TagClosebrace",  Hprose::TagClosebrace,  Php::Const);
-        tags.property("TagQuote",       Hprose::TagQuote,       Php::Const);
-        tags.property("TagPoint",       Hprose::TagPoint,       Php::Const);
+         .property("TagPos",         Hprose::TagPos,         Php::Const)
+         .property("TagNeg",         Hprose::TagNeg,         Php::Const)
+         .property("TagSemicolon",   Hprose::TagSemicolon,   Php::Const)
+         .property("TagOpenbrace",   Hprose::TagOpenbrace,   Php::Const)
+         .property("TagClosebrace",  Hprose::TagClosebrace,  Php::Const)
+         .property("TagQuote",       Hprose::TagQuote,       Php::Const)
+         .property("TagPoint",       Hprose::TagPoint,       Php::Const)
 
-        tags.property("TagFunctions",   Hprose::TagFunctions,   Php::Const);
-        tags.property("TagCall",        Hprose::TagCall,        Php::Const);
-        tags.property("TagResult",      Hprose::TagResult,      Php::Const);
-        tags.property("TagArgument",    Hprose::TagArgument,    Php::Const);
-        tags.property("TagError",       Hprose::TagError,       Php::Const);
-        tags.property("TagEnd",         Hprose::TagEnd,         Php::Const);
+         .property("TagFunctions",   Hprose::TagFunctions,   Php::Const)
+         .property("TagCall",        Hprose::TagCall,        Php::Const)
+         .property("TagResult",      Hprose::TagResult,      Php::Const)
+         .property("TagArgument",    Hprose::TagArgument,    Php::Const)
+         .property("TagError",       Hprose::TagError,       Php::Const)
+         .property("TagEnd",         Hprose::TagEnd,         Php::Const);
 
-        ext.add(std::move(tags));
+        ext.add(std::move(c));
     }
 }
 #endif /* HPROSE_TAGS_H_ */

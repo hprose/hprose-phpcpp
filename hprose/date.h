@@ -13,7 +13,7 @@
  *                                                        *
  * hprose date class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 29, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -448,72 +448,72 @@ namespace Hprose {
     inline Php::Class<Hprose::Date> publish_date(Php::Extension &ext) {
         Php::Class<Hprose::Date> c("HproseDate");
         c.property("year", &Hprose::Date::getYear, &Hprose::Date::setYear)
-        .property("month", &Hprose::Date::getMonth, &Hprose::Date::setMonth)
-        .property("day", &Hprose::Date::getDay, &Hprose::Date::setDay)
-        .property("utc", &Hprose::Date::getUtc, &Hprose::Date::setUtc)
-        .property("hour", &Hprose::Date::getHour, &Hprose::Date::setHour)
-        .property("minute", &Hprose::Date::getMinute, &Hprose::Date::setMinute)
-        .property("second", &Hprose::Date::getSecond, &Hprose::Date::setSecond)
-        .property("microsecond", &Hprose::Date::getMicrosecond, &Hprose::Date::setMicrosecond)
-        .method("__construct",
-                &Hprose::Date::__construct,
-                {
-                    Php::ByVal("arg1", Php::Type::Null, false),
-                    Php::ByVal("arg2", Php::Type::Numeric, false),
-                    Php::ByVal("arg3", Php::Type::Numeric, false),
-                    Php::ByVal("arg4", Php::Type::Bool, false)
-                })
-        .method("addDays",
-                &Hprose::Date::addDays,
-                { Php::ByVal("days", Php::Type::Numeric) })
-        .method("addMonths",
-                &Hprose::Date::addMonths,
-                { Php::ByVal("months", Php::Type::Numeric) })
-        .method("addYears",
-                &Hprose::Date::addYears,
-                { Php::ByVal("years", Php::Type::Numeric) })
-        .method("timestamp", &Hprose::Date::timestamp)
-        .method("toString",
-                &Hprose::Date::toString,
-                { Php::ByVal("fullformat", Php::Type::Bool, false) })
-        .method("__toString", &Hprose::Date::__toString)
-        .method("isLeapYear",
-                &Hprose::Date::isLeapYear,
-                Php::Public | Php::Static,
-                { Php::ByVal("days", Php::Type::Numeric) })
-        .method("daysInMonth",
-                &Hprose::Date::daysInMonth,
-                Php::Public | Php::Static,
+         .property("month", &Hprose::Date::getMonth, &Hprose::Date::setMonth)
+         .property("day", &Hprose::Date::getDay, &Hprose::Date::setDay)
+         .property("utc", &Hprose::Date::getUtc, &Hprose::Date::setUtc)
+         .property("hour", &Hprose::Date::getHour, &Hprose::Date::setHour)
+         .property("minute", &Hprose::Date::getMinute, &Hprose::Date::setMinute)
+         .property("second", &Hprose::Date::getSecond, &Hprose::Date::setSecond)
+         .property("microsecond", &Hprose::Date::getMicrosecond, &Hprose::Date::setMicrosecond)
+         .method("__construct",
+                 &Hprose::Date::__construct,
                  {
-                    Php::ByVal("year", Php::Type::Numeric),
-                    Php::ByVal("month", Php::Type::Numeric)
+                     Php::ByVal("arg1", Php::Type::Null, false),
+                     Php::ByVal("arg2", Php::Type::Numeric, false),
+                     Php::ByVal("arg3", Php::Type::Numeric, false),
+                     Php::ByVal("arg4", Php::Type::Bool, false)
                  })
-        .method("daysInYear",
-                &Hprose::Date::daysInYear,
-                Php::Public | Php::Static,
-                { Php::ByVal("year", Php::Type::Numeric) })
-        .method("isValidDate",
-                &Hprose::Date::isValidDate,
-                Php::Public | Php::Static,
-                {
-                    Php::ByVal("year", Php::Type::Numeric),
-                    Php::ByVal("month", Php::Type::Numeric),
-                    Php::ByVal("day", Php::Type::Numeric)
-                })
-        .method("dayOfWeek",
-                &Hprose::Date::dayOfWeek,
-                {
-                    Php::ByVal("year", Php::Type::Numeric, false),
-                    Php::ByVal("month", Php::Type::Numeric, false),
-                    Php::ByVal("day", Php::Type::Numeric, false)
-                })
-        .method("dayOfYear",
-                &Hprose::Date::dayOfYear,
-                {
-                    Php::ByVal("year", Php::Type::Numeric, false),
-                    Php::ByVal("month", Php::Type::Numeric, false),
-                    Php::ByVal("day", Php::Type::Numeric, false)
-                });
+         .method("addDays",
+                 &Hprose::Date::addDays,
+                 { Php::ByVal("days", Php::Type::Numeric) })
+         .method("addMonths",
+                 &Hprose::Date::addMonths,
+                 { Php::ByVal("months", Php::Type::Numeric) })
+         .method("addYears",
+                 &Hprose::Date::addYears,
+                 { Php::ByVal("years", Php::Type::Numeric) })
+         .method("timestamp", &Hprose::Date::timestamp)
+         .method("toString",
+                 &Hprose::Date::toString,
+                 { Php::ByVal("fullformat", Php::Type::Bool, false) })
+         .method("__toString", &Hprose::Date::__toString)
+         .method("isLeapYear",
+                 &Hprose::Date::isLeapYear,
+                 Php::Public | Php::Static,
+                 { Php::ByVal("days", Php::Type::Numeric) })
+         .method("daysInMonth",
+                 &Hprose::Date::daysInMonth,
+                 Php::Public | Php::Static,
+                 {
+                     Php::ByVal("year", Php::Type::Numeric),
+                     Php::ByVal("month", Php::Type::Numeric)
+                 })
+         .method("daysInYear",
+                 &Hprose::Date::daysInYear,
+                 Php::Public | Php::Static,
+                 { Php::ByVal("year", Php::Type::Numeric) })
+         .method("isValidDate",
+                 &Hprose::Date::isValidDate,
+                 Php::Public | Php::Static,
+                 {
+                     Php::ByVal("year", Php::Type::Numeric),
+                     Php::ByVal("month", Php::Type::Numeric),
+                     Php::ByVal("day", Php::Type::Numeric)
+                 })
+         .method("dayOfWeek",
+                 &Hprose::Date::dayOfWeek,
+                 {
+                     Php::ByVal("year", Php::Type::Numeric, false),
+                     Php::ByVal("month", Php::Type::Numeric, false),
+                     Php::ByVal("day", Php::Type::Numeric, false)
+                 })
+         .method("dayOfYear",
+                 &Hprose::Date::dayOfYear,
+                 {
+                     Php::ByVal("year", Php::Type::Numeric, false),
+                     Php::ByVal("month", Php::Type::Numeric, false),
+                     Php::ByVal("day", Php::Type::Numeric, false)
+                 });
         ext.add(c);
         return c;
     }

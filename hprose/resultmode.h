@@ -9,34 +9,37 @@
 
 /**********************************************************\
  *                                                        *
- * hprose/hprose.cpp                                      *
+ * hprose/resultmode.h                                    *
  *                                                        *
- * hprose for php-cpp.                                    *
+ * hprose resultmode library for php-cpp.                 *
  *                                                        *
  * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-#include "hprose.h"
+#ifndef HPROSE_RESULTMODE_H_
+#define HPROSE_RESULTMODE_H_
 
-extern "C" {
+#include <phpcpp.h>
 
-    PHPCPP_EXPORT void *get_module() {
+namespace Hprose {
+    const int32_t Normal        = 0;
+    const int32_t Serialized    = 1;
+    const int32_t Raw           = 2;
+    const int32_t RawWithEndTag = 3;
 
-        static Php::Extension extension("hprose", "1.4.0");
+    class ResultMode : public Php::Base {};
 
-        Hprose::publish_tags(extension);
-        Hprose::publish_datetime(extension, Hprose::publish_date(extension));
-        Hprose::publish_time(extension);
-        Hprose::publish_stringstream(extension);
-        Hprose::publish_classmanager(extension);
-        Hprose::publish_resultmode(extension);
+    inline void publish_resultmode(Php::Extension &ext) {
+        Php::Class<ResultMode> c("HproseResultMode");
 
-        // extension.add("hprose\\serialize", hprose_serialize, {
-        //     Php::ByRef("val", Php::Type::Null)
-        // });
+        c.property("Normal",        Hprose::Normal,        Php::Const)
+         .property("Serialized",    Hprose::Serialized,    Php::Const)
+         .property("Raw",           Hprose::Raw,           Php::Const)
+         .property("RawWithEndTag", Hprose::RawWithEndTag, Php::Const);
 
-        return extension;
+        ext.add(std::move(c));
     }
 }
+#endif /* HPROSE_RESULTMODE_H_ */

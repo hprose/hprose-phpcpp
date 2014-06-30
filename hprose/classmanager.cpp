@@ -9,34 +9,22 @@
 
 /**********************************************************\
  *                                                        *
- * hprose/hprose.cpp                                      *
+ * hprose/classmanager.cpp                                *
  *                                                        *
- * hprose for php-cpp.                                    *
+ * hprose classmanager class for php-cpp.                 *
  *                                                        *
  * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-#include "hprose.h"
+#include "classmanager.h"
 
-extern "C" {
+namespace Hprose {
+    std::map<std::string, std::string> ClassManager::classCache1;
+    std::map<std::string, std::string> ClassManager::classCache2;
+#ifdef ZTS
+    std::mutex ClassManager::mutex;
+#endif
 
-    PHPCPP_EXPORT void *get_module() {
-
-        static Php::Extension extension("hprose", "1.4.0");
-
-        Hprose::publish_tags(extension);
-        Hprose::publish_datetime(extension, Hprose::publish_date(extension));
-        Hprose::publish_time(extension);
-        Hprose::publish_stringstream(extension);
-        Hprose::publish_classmanager(extension);
-        Hprose::publish_resultmode(extension);
-
-        // extension.add("hprose\\serialize", hprose_serialize, {
-        //     Php::ByRef("val", Php::Type::Null)
-        // });
-
-        return extension;
-    }
 }

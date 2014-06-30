@@ -13,7 +13,7 @@
  *                                                        *
  * hprose header file for php-cpp.                        *
  *                                                        *
- * LastModified: Jun 29, 2014                             *
+ * LastModified: Jun 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -27,5 +27,7 @@
 #include "time.h"
 #include "datetime.h"
 #include "stringstream.h"
+#include "classmanager.h"
+#include "resultmode.h"
 
 #endif /* HPROSE_H_ */
