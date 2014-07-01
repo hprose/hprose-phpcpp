@@ -9,27 +9,35 @@
 
 /**********************************************************\
  *                                                        *
- * hprose/hprose.h                                        *
+ * hprose/filter.h                                        *
  *                                                        *
- * hprose header file for php-cpp.                        *
+ * hprose filter interface for php-cpp.                   *
  *                                                        *
  * LastModified: Jul 1, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-#ifndef HPROSE_H_
-#define HPROSE_H_
+#ifndef HPROSE_FILTER_H_
+#define HPROSE_FILTER_H_
 
 #include <phpcpp.h>
-#include "tags.h"
-#include "date.h"
-#include "time.h"
-#include "datetime.h"
-#include "stringstream.h"
-#include "classmanager.h"
-#include "resultmode.h"
-#include "filter.h"
-#include "common.h"
 
-#endif /* HPROSE_H_ */
+namespace Hprose {
+
+    inline void publish_filter(Php::Extension &ext) {
+        Php::Interface i("HproseFilter");
+        i.method("inputFilter",
+                 {
+                     Php::ByVal("data", Php::Type::String),
+                     Php::ByVal("context", Php::Type::Null)
+                 })
+         .method("outputFilter",
+                {
+                    Php::ByVal("data", Php::Type::String),
+                    Php::ByVal("context", Php::Type::Null)
+                });
+        ext.add(std::move(i));
+    }
+}
+#endif /* HPROSE_FILTER_H_ */
