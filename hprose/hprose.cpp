@@ -34,6 +34,7 @@ extern "C" {
         Hprose::publish_resultmode(extension);
         Hprose::publish_filter(extension);
         Hprose::publish_common(extension);
+        Hprose::publish_rawreader(extension);
 
         // extension.add("hprose\\serialize", hprose_serialize, {
         //     Php::ByRef("val", Php::Type::Null)

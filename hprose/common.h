@@ -9,11 +9,11 @@
 
 /**********************************************************\
  *                                                        *
- * hprose/filter.h                                        *
+ * hprose/common.h                                        *
  *                                                        *
- * hprose filter interface for php-cpp.                   *
+ * hprose common library for php-cpp.                     *
  *                                                        *
- * LastModified: Jul 1, 2014                              *
+ * LastModified: Jul 2, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -29,7 +29,7 @@ namespace Hprose {
     public:
         std::string value;
         Bytes() {}
-        Bytes(std::string str) : value(str) {}
+        Bytes(const std::string str) : value(str) {}
         virtual ~Bytes() {}
         void __construct(Php::Parameters &params) {
             value = params[0].stringValue();
@@ -47,7 +47,7 @@ namespace Hprose {
     public:
         std::map<std::string, Php::Value> value;
         Map() {}
-        Map(std::map<std::string, Php::Value> map) : value(map) {}
+        Map(const std::map<std::string, Php::Value> map) : value(map) {}
         virtual ~Map() {}
         void __construct(Php::Parameters &params) {
             value = params[0].mapValue();
@@ -65,9 +65,9 @@ namespace Hprose {
         return params[0].isList();
     }
 
-    Php::Value is_utf8(Php::Parameters &params) {
-        const char *str = params[0].rawValue();
-        int32_t len = params[0].size();
+    bool is_utf8(Php::Value &value) {
+        const char *str = value.rawValue();
+        int32_t len = value.size();
         for (int32_t i = 0; i < len; ++i) {
             unsigned char c = str[i], b;
             switch (c >> 4) {
@@ -101,9 +101,13 @@ namespace Hprose {
         return true;
     }
 
-    Php::Value ustrlen(Php::Parameters &params) {
-        const char *str = params[0].rawValue();
-        const int32_t length = params[0].size();
+    Php::Value is_utf8(Php::Parameters &params) {
+        return is_utf8(params[0]);
+    }
+
+    int32_t ustrlen(Php::Value &value) {
+        const char *str = value.rawValue();
+        const int32_t length = value.size();
         int32_t len = length, pos = 0;
         while (pos < length) {
             unsigned char a = str[pos++];
@@ -124,6 +128,10 @@ namespace Hprose {
             }
         }
         return len;
+    }
+
+    Php::Value ustrlen(Php::Parameters &params) {
+        return ustrlen(params[0]);
     }
 
     Php::Value array_ref_search(Php::Parameters &params) {

@@ -31,5 +31,6 @@
 #include "resultmode.h"
 #include "filter.h"
 #include "common.h"
+#include "rawreader.h"
 
 #endif /* HPROSE_H_ */

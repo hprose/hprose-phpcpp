@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jun 30, 2014                             *
+ * LastModified: Jul 2, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -33,7 +33,7 @@ namespace Hprose {
     public:
         StringStream() : buffer(""), pos(0), _mark(-1) {
         }
-        StringStream(std::string str) : buffer(str), pos(0), _mark(-1) {
+        StringStream(const std::string str) : buffer(str), pos(0), _mark(-1) {
         }
         virtual ~StringStream() {}
         void init(std::string str) {
@@ -52,7 +52,7 @@ namespace Hprose {
         inline char getchar() {
             return buffer[pos++];
         }
-        std::string read(int64_t length) {
+        std::string read(const int64_t length) {
             std::string str = buffer.substr(pos, length);
             pos += length;
             return str;
@@ -62,7 +62,7 @@ namespace Hprose {
             pos = length();
             return str;
         }
-        std::string readuntil(char tag) {
+        std::string readuntil(const char tag) {
             int64_t p = buffer.find(tag, pos);
             if (p > 0) {
                 std::string str = buffer.substr(pos, p - pos);
@@ -71,7 +71,7 @@ namespace Hprose {
             }
             return read_full();
         }
-        int seek(int64_t offset, int whence = SEEK_SET) {
+        int seek(const int64_t offset, const int whence = SEEK_SET) {
             switch (whence) {
                 case SEEK_SET: pos = offset; break;
                 case SEEK_CUR: pos += offset; break;
@@ -91,37 +91,42 @@ namespace Hprose {
                 pos = _mark;
             }
         }
-        inline void skip(int64_t n) {
+        inline void skip(const int64_t n) {
             pos += n;
         }
         inline bool eof() const {
             return pos >= size();
         }
-        inline void write(std::string str, int64_t length = -1) {
+        inline StringStream &write(const std::string str, const int64_t length = -1) {
             if (length == -1) {
                 buffer.append(str);
             }
             else {
-                buffer.append(str.substr(0, length));
+                buffer.append(str, 0, length);
             }
+            return *this;
         }
-        inline void write(char c) {
-            buffer.append(&c, 1);
+        inline StringStream &write(const char *str, const int64_t length) {
+            buffer.append(str, length);
+            return *this;
         }
-        inline void write(int32_t i) {
-            char buf[16];
-            int n = sprintf(buf, "%d", i);
-            buffer.append(buf, n);
+        inline StringStream &write(const char c) {
+            buffer.append(1, c);
+            return *this;
         }
-        inline void write(int64_t i) {
-            char buf[32];
-            int n = sprintf(buf, "%lld", i);
-            buffer.append(buf, n);
+        inline StringStream &write(const int32_t i) {
+            buffer.append(std::to_string(i));
+            return *this;
         }
-        inline void write(double f) {
+        inline StringStream &write(const int64_t i) {
+            buffer.append(std::to_string(i));
+            return *this;
+        }
+        inline StringStream &write(const double f) {
             char buf[32];
             int n = sprintf(buf, "%.16g", f);
             buffer.append(buf, n);
+            return *this;
         }
         // -----------------------------------------------------------
         // for PHP
@@ -172,10 +177,12 @@ namespace Hprose {
                     break;
                 case Php::Type::String:
                     if (params.size() > 1) {
-                        write(val.stringValue(), params[2]);
+                        int32_t n = params[2];
+                        int32_t size = val.size();
+                        write(val.rawValue(), n > size ? size : n);
                     }
                     else {
-                        write(val.stringValue());
+                        write(val.rawValue(), val.size());
                     }
                     break;
                 default:
