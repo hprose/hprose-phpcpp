@@ -13,7 +13,7 @@
  *                                                        *
  * hprose rawreader class for php-cpp.                    *
  *                                                        *
- * LastModified: Jul 1, 2014                              *
+ * LastModified: Jul 2, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -27,13 +27,13 @@ namespace Hprose {
     class RawReader : public Php::Base {
     private:
         inline void readNumberRaw(StringStream &ostream) {
-            ostream.write(stream.readuntil(TagSemicolon)).write(TagSemicolon);
+            ostream.write(stream->readuntil(TagSemicolon)).write(TagSemicolon);
         }
         inline void readDateTimeRaw(StringStream &ostream) {
             char buf[32];
             int i = 0;
             for (unsigned char tag = 0; i < 31 && tag != TagSemicolon && tag != TagUTC; ++i) {
-                tag = stream.getchar();
+                tag = stream->getchar();
                 buf[i] = tag;
             }
             if (i >= 31) throw Php::Exception("incorrect serialization data");
@@ -42,14 +42,14 @@ namespace Hprose {
         inline void readUTF8CharRaw(StringStream &ostream) {
             char buf[4];
             int32_t i = 1;
-            buf[0] = stream.getchar();
+            buf[0] = stream->getchar();
             if ((buf[0] & 0xE0) == 0xC0) {
-                buf[1] = stream.getchar();
+                buf[1] = stream->getchar();
                 ++i;
             }
             else if ((buf[0] & 0xF0) == 0xE0) {
-                buf[1] = stream.getchar();
-                buf[2] = stream.getchar();
+                buf[1] = stream->getchar();
+                buf[2] = stream->getchar();
                 i += 2;
             }
             else if (buf[0] > 0x7F) {
@@ -58,16 +58,16 @@ namespace Hprose {
             ostream.write(buf, i);
         }
         inline void readBytesRaw(StringStream &ostream) {
-            std::string len = stream.readuntil(TagQuote);
-            ostream.write(len + TagQuote + stream.read(std::stoi(len)) + TagQuote);
-            stream.skip(1);
+            std::string len = stream->readuntil(TagQuote);
+            ostream.write(len + TagQuote + stream->read(std::stoi(len)) + TagQuote);
+            stream->skip(1);
         }
         inline void readStringRaw(StringStream &ostream) {
-            std::string len = stream.readuntil(TagQuote);
-            stream.mark();
+            std::string len = stream->readuntil(TagQuote);
+            stream->mark();
             int32_t length = std::stoi(len), utf8len = 0;
             for (int32_t i = 0; i < length; ++i) {
-                unsigned char tag = stream.getchar();
+                unsigned char tag = stream->getchar();
                 switch (tag >> 4) {
                     case 0:
                     case 1:
@@ -81,15 +81,15 @@ namespace Hprose {
                         break;
                     case 12:
                     case 13:
-                        stream.skip(1);
+                        stream->skip(1);
                         utf8len += 2;
                         break;
                     case 14:
-                        stream.skip(2);
+                        stream->skip(2);
                         utf8len += 3;
                         break;
                     case 15:
-                        stream.skip(3);
+                        stream->skip(3);
                         utf8len += 4;
                         ++i;
                         break;
@@ -98,26 +98,26 @@ namespace Hprose {
                         break;
                 }
             }
-            stream.reset();
-            stream.unmark();
-            ostream.write(len + TagQuote + stream.read(utf8len) + TagQuote);
-            stream.skip(1);
+            stream->reset();
+            stream->unmark();
+            ostream.write(len + TagQuote + stream->read(utf8len) + TagQuote);
+            stream->skip(1);
         }
         inline void readGuidRaw(StringStream &ostream) {
             ostream.write(ostream.read(38));
         }
         inline void readComplexRaw(StringStream &ostream) {
-            ostream.write(stream.readuntil(TagOpenbrace) + TagOpenbrace);
+            ostream.write(stream->readuntil(TagOpenbrace) + TagOpenbrace);
             char tag;
-            while ((tag = stream.getchar()) != TagClosebrace) {
+            while ((tag = stream->getchar()) != TagClosebrace) {
                 readRaw(ostream, tag);
             }
             ostream.write(tag);
         }
     public:
-        StringStream stream;
+        StringStream *stream;
         RawReader() {}
-        RawReader(const StringStream &stream) : stream(stream) {}
+        RawReader(StringStream &stream) : stream(&stream) {}
         virtual ~RawReader() {}
         static void unexpectedTag(const char tag, const std::string expectTags = "") {
             if (tag && !expectTags.empty()) {
@@ -136,7 +136,7 @@ namespace Hprose {
             return ostream;
         }
         StringStream &readRaw(StringStream &ostream) {
-            return readRaw(ostream, stream.getchar());
+            return readRaw(ostream, stream->getchar());
         }
         StringStream &readRaw(StringStream &ostream, const char tag) {
             ostream.write(tag);
@@ -158,7 +158,7 @@ namespace Hprose {
                 case TagNaN:
                     break;
                 case TagInfinity:
-                    ostream.write(stream.getchar());
+                    ostream.write(stream->getchar());
                     break;
                 case TagInteger:
                 case TagLong:
@@ -203,7 +203,7 @@ namespace Hprose {
         // -----------------------------------------------------------
         // for PHP
         void __construct(Php::Parameters &params) {
-            stream = *(StringStream *)params[0].implementation();
+            stream = (StringStream *)params[0].implementation();
         }
         Php::Value readRaw(Php::Parameters &params) {
             int n = (int)params.size();
