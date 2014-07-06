@@ -13,7 +13,7 @@
  *                                                        *
  * hprose datetime class for php-cpp.                     *
  *                                                        *
- * LastModified: Jun 30, 2014                             *
+ * LastModified: Jul 6, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -227,17 +227,18 @@ namespace Hprose {
                                   val.get("seconds", 7));
                     }
                     else if (val.isObject()) {
-                        if (Php::call("is_a", val, "HproseDateTime")) {
+                        std::string classname = val.className();
+                        if (classname == "HproseDateTime") {
                             DateTime *datetime = (DateTime *)val.implementation();
                             timebuf = datetime->timebuf;
                             usec = datetime->usec;
                         }
-                        else if (Php::call("is_a", val, "HproseDate")) {
+                        else if (classname == "HproseDate") {
                             Date *date = (Date *)val.implementation();
                             timebuf = date->timebuf;
                             init_time(0, 0, 0, 0);
                         }
-                        else if (Php::call("is_a", val, "HproseTime")) {
+                        else if (classname == "HproseTime") {
                             Time *time = (Time *)val.implementation();
                             init(1970, 1, 1, time->utc);
                             init_time(time->hour, time->minute, time->second, time->microsecond);
@@ -253,9 +254,7 @@ namespace Hprose {
                 }
                 case 2: {
                     Php::Value &v1 = params[0], &v2 = params[1];
-                    if (v1.isObject() && v2.isObject() &&
-                        Php::call("is_a", v1, "HproseDate") &&
-                        Php::call("is_a", v2, "HproseTime")) {
+                    if (v1.is("HproseDate") && v2.is("HproseTime")) {
                         Date *date = (Date *)v1.implementation();
                         timebuf = date->timebuf;
                         utc = date->utc;
@@ -330,21 +329,21 @@ namespace Hprose {
         }
         Php::Value after(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+            if (!val.is("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return after((DateTime *)val.implementation());
         }
         Php::Value before(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+            if (!val.is("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return before((DateTime *)val.implementation());
         }
         Php::Value equals(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.isObject() || !Php::call("is_a", val, "HproseDateTime")) {
+            if (!val.is("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return equals((DateTime *)val.implementation());

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose date class for php-cpp.                         *
  *                                                        *
- * LastModified: Jun 30, 2014                             *
+ * LastModified: Jul 6, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -265,13 +265,8 @@ namespace Hprose {
                              val.get("mday", 4),
                              false);
                     }
-                    else if (val.isObject()) {
-                        if (Php::call("is_a", val, "HproseDate")) {
-                            timebuf = ((Hprose::Date *) val.implementation())->timebuf;
-                        }
-                        else {
-                            throw Php::Exception("Unexpected arguments");
-                        }
+                    else if (val.is("HproseDate")) {
+                        timebuf = ((Hprose::Date *) val.implementation())->timebuf;
                     }
                     else {
                         throw Php::Exception("Unexpected arguments");

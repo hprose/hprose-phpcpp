@@ -13,7 +13,7 @@
  *                                                        *
  * hprose classmanager class for php-cpp.                 *
  *                                                        *
- * LastModified: Jun 30, 2014                             *
+ * LastModified: Jul 6, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -35,7 +35,7 @@ namespace Hprose {
 #ifdef ZTS
         static std::mutex mutex;
 #endif
-        static std::string _get_alias(const std::string cls) {
+        static std::string _get_alias(const std::string &cls) {
 #ifdef ZTS
             std::lock_guard<std::mutex> lock(mutex);
 #endif
@@ -45,7 +45,7 @@ namespace Hprose {
             }
             return "";
         }
-        static std::string _get_class(const std::string alias) {
+        static std::string _get_class(const std::string &alias) {
 #ifdef ZTS
             std::lock_guard<std::mutex> lock(mutex);
 #endif
@@ -56,14 +56,14 @@ namespace Hprose {
             return "";
         }
     public:
-        static void register_class(const std::string cls, const std::string alias) {
+        static void register_class(const std::string &cls, const std::string &alias) {
 #ifdef ZTS
             std::lock_guard<std::mutex> lock(mutex);
 #endif
             classCache1[alias] = cls;
             classCache2[cls] = alias;
         }
-        static std::string get_alias(const std::string cls) {
+        static std::string get_alias(const std::string &cls) {
             std::string alias = _get_alias(cls);
             if (alias.empty()) {
                 alias = cls;
@@ -74,16 +74,16 @@ namespace Hprose {
             }
             return alias;
         }
-        static std::string get_class(const std::string alias) {
+        static std::string get_class(const std::string &alias) {
             std::string cls = _get_class(alias);
             if (cls.empty()) {
-                if (!Php::call("class_exists", alias)) {
+                if (!Php::class_exists(alias)) {
                     cls = alias;
                     size_t pos = 0;
                     while ((pos = cls.find('_', pos)) != std::string::npos) {
                         cls[pos] = '\\';
                     }
-                    if (!Php::call("class_exists", cls)) {
+                    if (!Php::class_exists(cls)) {
                         Php::eval("class " + alias + " {}");
                         cls = alias;
                     }

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose common library for php-cpp.                     *
  *                                                        *
- * LastModified: Jul 2, 2014                              *
+ * LastModified: Jul 3, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -45,12 +45,12 @@ namespace Hprose {
 
     class Map : public Php::Base {
     public:
-        std::map<std::string, Php::Value> value;
+        Php::Value value;
         Map() {}
-        Map(const std::map<std::string, Php::Value> map) : value(map) {}
+        Map(Php::Value &map) : value(map) {}
         virtual ~Map() {}
         void __construct(Php::Parameters &params) {
-            value = params[0].mapValue();
+            value = params[0];
         }
         std::string __toString() const {
             return "Map";
@@ -65,11 +65,15 @@ namespace Hprose {
         return params[0].isList();
     }
 
-    bool is_utf8(Php::Value &value) {
-        const char *str = value.rawValue();
+    Php::Value contains(Php::Parameters &params) {
+        return params[0].contains(params[1]);
+    }
+
+    bool is_utf8(const Php::Value &value) {
+        const unsigned char *str = (const unsigned char *)value.rawValue();
         int32_t len = value.size();
         for (int32_t i = 0; i < len; ++i) {
-            unsigned char c = str[i], b;
+            const unsigned char &c = str[i];
             switch (c >> 4) {
                 case 0:
                 case 1:
@@ -88,12 +92,13 @@ namespace Hprose {
                     if ((str[++i] >> 6) != 0x2) return false;
                     if ((str[++i] >> 6) != 0x2) return false;
                     break;
-                case 15:
-                    b = str[++i];
+                case 15: {
+                    const unsigned char &b = str[++i];
                     if ((str[++i] >> 6) != 0x2) return false;
                     if ((str[++i] >> 6) != 0x2) return false;
                     if ((((c & 0xf) << 2) | ((b >> 4) & 0x3)) > 0x10) return false;
                     break;
+                }
                 default:
                     return false;
             }
@@ -105,12 +110,12 @@ namespace Hprose {
         return is_utf8(params[0]);
     }
 
-    int32_t ustrlen(Php::Value &value) {
-        const char *str = value.rawValue();
+    int32_t ustrlen(const Php::Value &value) {
+        const unsigned char *str = (const unsigned char *)value.rawValue();
         const int32_t length = value.size();
         int32_t len = length, pos = 0;
         while (pos < length) {
-            unsigned char a = str[pos++];
+            const unsigned char &a = str[pos++];
             if (a < 0x80) {
                 continue;
             }
@@ -177,11 +182,16 @@ namespace Hprose {
         ext.add("map",
                 &map,
                 { Php::ByVal("map", Php::Type::Array) });
-
         ext.add("is_list",
                 &is_list,
                 {
                     Php::ByVal("a", Php::Type::Array)
+                });
+        ext.add("contains",
+                &contains,
+                {
+                    Php::ByVal("a", Php::Type::Array),
+                    Php::ByVal("index", Php::Type::Null)
                 });
         ext.add("is_utf8",
                 &is_utf8,
