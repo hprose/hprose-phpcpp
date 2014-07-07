@@ -71,6 +71,11 @@ namespace Hprose {
             }
             return read_full();
         }
+        int32_t readint(const char tag) {
+            std::string str = readuntil(tag);
+            if (str.empty()) return 0;
+            return std::stoi(std::move(str));
+        }
         int seek(const int64_t offset, const int whence = SEEK_SET) {
             switch (whence) {
                 case SEEK_SET: pos = offset; break;

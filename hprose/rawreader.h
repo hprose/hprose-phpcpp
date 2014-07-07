@@ -26,6 +26,10 @@
 namespace Hprose {
     class RawReader : public Php::Base {
     private:
+        inline int32_t stoi(const std::string &str) {
+            if (str.empty()) return 0;
+            return std::stoi(str);
+        }
         inline void readNumberRaw(StringStream &ostream) {
             ostream.write(stream->readuntil(TagSemicolon)).write(TagSemicolon);
         }
@@ -59,13 +63,13 @@ namespace Hprose {
         }
         inline void readBytesRaw(StringStream &ostream) {
             std::string len = stream->readuntil(TagQuote);
-            ostream.write(len + TagQuote + stream->read(std::stoi(len)) + TagQuote);
+            ostream.write(len + TagQuote + stream->read(stoi(len)) + TagQuote);
             stream->skip(1);
         }
         inline void readStringRaw(StringStream &ostream) {
             std::string len = stream->readuntil(TagQuote);
             stream->mark();
-            int32_t length = std::stoi(len), utf8len = 0;
+            int32_t length = stoi(len), utf8len = 0;
             for (int32_t i = 0; i < length; ++i) {
                 unsigned char tag = stream->getchar();
                 switch (tag >> 4) {

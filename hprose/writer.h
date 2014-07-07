@@ -75,12 +75,7 @@ namespace Hprose {
         }
         virtual ~RealWriterRefer() {}
         inline virtual void set(const Php::Value &value) override {
-            //if (value.isArray()) {
-                ref[value.ref()] = refcount++;
-            //}
-            //else {
-            //    ref[value] = refcount++;
-           // }
+            ref[value.ref()] = refcount++;
         }
         inline virtual bool write(const Php::Value &value) override {
             auto it = ref.find(value);

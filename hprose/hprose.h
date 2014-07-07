@@ -33,5 +33,6 @@
 #include "common.h"
 #include "writer.h"
 #include "rawreader.h"
+#include "reader.h"
 
 #endif /* HPROSE_H_ */
