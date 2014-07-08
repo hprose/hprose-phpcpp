@@ -13,7 +13,7 @@
  *                                                        *
  * hprose reader class for php-cpp.                       *
  *                                                        *
- * LastModified: Jul 7, 2014                              *
+ * LastModified: Jul 8, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -28,8 +28,8 @@
 namespace Hprose {
     class ReaderRefer {
     public:
-        inline virtual void set(Php::Value &value) = 0;
-        inline virtual Php::Value read(int32_t index) = 0;
+        inline virtual void set(const Php::Value &value) = 0;
+        inline virtual const Php::Value &read(int32_t index) = 0;
         inline virtual void reset() = 0;
         ReaderRefer() {}
         virtual ~ReaderRefer() {}
@@ -37,8 +37,8 @@ namespace Hprose {
 
     class FakeReaderRefer : public ReaderRefer {
     public:
-        inline virtual void set(Php::Value &value) override {}
-        inline virtual Php::Value read(int32_t index) override {
+        inline virtual void set(const Php::Value &value) override {}
+        inline virtual const Php::Value &read(int32_t index) override {
             throw Php::Exception(std::string("Unexcepted serialize tag '") + TagRef + "' in stream");
         };
         inline virtual void reset() override {};
@@ -50,18 +50,11 @@ namespace Hprose {
     private:
         std::vector<Php::Value> ref;
     public:
-        inline virtual void set(Php::Value &value) override {
-            if (value.isArray()) {
-                printf("isref: %d\r\n", value.isRef());
-                ref.push_back(value.ref());
-            }
-            else {
-                ref.push_back(value);
-            }
+        inline virtual void set(const Php::Value &value) override {
+            ref.push_back(value);
         }
-        inline virtual Php::Value read(int32_t index) override {
-            printf("isref: %d\r\n", ref[index].isRef());
-            return ref[index].ref();
+        inline virtual const Php::Value &read(int32_t index) override {
+            return ref[index];
         }
         inline virtual void reset() override {
             ref.clear();
@@ -123,9 +116,18 @@ namespace Hprose {
             stream->skip(1);
             return s;
         }
-        Php::Value &readRef(Php::Value &value) {
-            value = refer->read(stream->readint(TagSemicolon));
-            return value;
+        Php::Value readRef() {
+            return refer->read(stream->readint(TagSemicolon));
+        }
+        void readClass() {
+            std::string classname = ClassManager::get_class(_readStringWithoutTag());
+            int32_t count = stream->readint(TagOpenbrace);
+            std::vector<std::string> fields;
+            for (int32_t i = 0; i < count; ++i) {
+                fields.push_back(readString());
+            }
+            stream->skip(1);
+            classref.push_back(std::move(std::make_pair(classname, fields)));
         }
     public:
         StringStream *stream;
@@ -141,23 +143,20 @@ namespace Hprose {
             classref.clear();
             refer->reset();
         }
-        Php::Value &readIntegerWithoutTag(Php::Value &value) {
-            value = std::stoll(stream->readuntil(TagSemicolon));
-            return value;
+        Php::Value readIntegerWithoutTag() {
+            return std::stoll(stream->readuntil(TagSemicolon));
         }
-        Php::Value &readLongWithoutTag(Php::Value &value) {
-            value = stream->readuntil(TagSemicolon);
-            return value;
+        Php::Value readLongWithoutTag() {
+            return stream->readuntil(TagSemicolon);
         }
-        Php::Value &readDoubleWithoutTag(Php::Value &value) {
-            value = std::stod(stream->readuntil(TagSemicolon));
-            return value;
+        Php::Value readDoubleWithoutTag() {
+            return std::stod(stream->readuntil(TagSemicolon));
         }
-        Php::Value &readInfinityWithoutTag(Php::Value &value) {
-            value = (stream->getchar() == TagNeg) ? -INFINITY : INFINITY;
-            return value;
+        Php::Value readInfinityWithoutTag() {
+            return (stream->getchar() == TagNeg) ? -INFINITY : INFINITY;
         }
-        Php::Value &readDateWithoutTag(Php::Value &value) {
+        Php::Value readDateWithoutTag() {
+            Php::Value value;
             int32_t year = std::stoi(stream->read(4));
             int32_t month = std::stoi(stream->read(2));
             int32_t day = std::stoi(stream->read(2));
@@ -188,7 +187,8 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
-        Php::Value &readTimeWithoutTag(Php::Value &value) {
+        Php::Value readTimeWithoutTag() {
+            Php::Value value;
             int32_t hour = std::stoi(stream->read(2));
             int32_t minute = std::stoi(stream->read(2));
             int32_t second = std::stoi(stream->read(2));
@@ -210,14 +210,14 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
-        Php::Value &readBytesWithoutTag(Php::Value &value) {
+        Php::Value readBytesWithoutTag() {
             int32_t count = stream->readint(TagQuote);
-            value = stream->read(count);
+            Php::Value value = stream->read(count);
             stream->skip(1);
             refer->set(value);
             return value;
         }
-        Php::Value &readUTF8CharWithoutTag(Php::Value &value) {
+        Php::Value readUTF8CharWithoutTag() {
             char buf[4];
             int32_t i = 1;
             buf[0] = stream->getchar();
@@ -233,79 +233,101 @@ namespace Hprose {
             else if (buf[0] > 0x7F) {
                 throw Php::Exception("bad utf-8 encoding");
             }
-            value = std::string(buf, i);
-            return value;
+            return Php::Value(buf, i);
         }
-        Php::Value &readStringWithoutTag(Php::Value &value) {
-            value = _readStringWithoutTag();
+        Php::Value readStringWithoutTag() {
+            Php::Value value = _readStringWithoutTag();
             refer->set(value);
             return value;
         }
-        Php::Value &readGuidWithoutTag(Php::Value &value) {
+        Php::Value readString() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagEmpty: return "";
+                case TagUTF8Char: return readUTF8CharWithoutTag();
+                case TagString: return readStringWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
+        Php::Value readGuidWithoutTag() {
             stream->skip(1);
-            value = stream->read(36);
+            Php::Value value = stream->read(36);
             stream->skip(1);
             refer->set(value);
             return value;
         }
-        Php::Value &readListWithoutTag(Php::Value &list) {
-            refer->set(list.setType(Php::Type::Array).setRef());
+        Php::Value readListWithoutTag() {
+            Php::Value list(Php::Type::Array);
+            refer->set(list.ref());
             int32_t count = stream->readint(TagOpenbrace);
             for (int32_t i = 0; i < count; ++i) {
-                Php::Value value;
-                list.set(i, unserialize(value));
+                list.set(i, unserialize());
             }
             stream->skip(1);
             return list;
         }
-        Php::Value &readMapWithoutTag(Php::Value &map) {
-            refer->set(map.setType(Php::Type::Array).setRef());
+        Php::Value readMapWithoutTag() {
+            Php::Value map(Php::Type::Array);
+            refer->set(map.ref());
             int32_t count = stream->readint(TagOpenbrace);
             for (int32_t i = 0; i < count; ++i) {
-                Php::Value key, value;
-                map.set(unserialize(key), unserialize(value));
+                map.set(unserialize(), unserialize());
             }
             stream->skip(1);
             return map;
         }
-        Php::Value &unserialize(Php::Value &value) {
-            char tag = stream->getchar();
-            switch (tag) {
-                case '0': value = 0; return value;
-                case '1': value = 1; return value;
-                case '2': value = 2; return value;
-                case '3': value = 3; return value;
-                case '4': value = 4; return value;
-                case '5': value = 5; return value;
-                case '6': value = 6; return value;
-                case '7': value = 7; return value;
-                case '8': value = 8; return value;
-                case '9': value = 9; return value;
-                case TagInteger: return readIntegerWithoutTag(value);
-                case TagLong: return readLongWithoutTag(value);
-                case TagDouble: return readDoubleWithoutTag(value);
-                case TagNull: value = nullptr; return value;
-                case TagEmpty: value = ""; return value;
-                case TagTrue: value = true; return value;
-                case TagFalse: value = false; return value;
-                case TagNaN: value = NAN; return value;
-                case TagInfinity: return readInfinityWithoutTag(value);
-                case TagDate: return readDateWithoutTag(value);
-                case TagTime: return readTimeWithoutTag(value);
-                case TagBytes: return readBytesWithoutTag(value);
-                case TagUTF8Char: return readUTF8CharWithoutTag(value);
-                case TagString: return readStringWithoutTag(value);
-                case TagList: return readListWithoutTag(value);
-                case TagMap: return readMapWithoutTag(value);
-                case TagRef: return readRef(value);
-                default:
-                break;
+        Php::Value readObjectWithoutTag() {
+            auto pair = classref[stream->readint(TagOpenbrace)];
+            std::string classname = pair.first;
+            std::vector<std::string> fields = pair.second;
+            Php::Value object = Php::Object(classname.c_str());
+            refer->set(object);
+            int32_t count = (int32_t)fields.size();
+            for (int32_t i = 0; i < count; ++i) {
+                object.set(fields[i], unserialize());
             }
-            return value;
+            stream->skip(1);
+            return object;
         }
         Php::Value unserialize() {
-            Php::Value value;
-            return unserialize(value);
+            char tag = stream->getchar();
+            switch (tag) {
+                case '0': return 0;
+                case '1': return 1;
+                case '2': return 2;
+                case '3': return 3;
+                case '4': return 4;
+                case '5': return 5;
+                case '6': return 6;
+                case '7': return 7;
+                case '8': return 8;
+                case '9': return 9;
+                case TagInteger: return readIntegerWithoutTag();
+                case TagLong: return readLongWithoutTag();
+                case TagDouble: return readDoubleWithoutTag();
+                case TagNull: return nullptr;
+                case TagEmpty: return "";
+                case TagTrue: return true;
+                case TagFalse: return false;
+                case TagNaN: return NAN;
+                case TagInfinity: return readInfinityWithoutTag();
+                case TagDate: return readDateWithoutTag();
+                case TagTime: return readTimeWithoutTag();
+                case TagBytes: return readBytesWithoutTag();
+                case TagUTF8Char: return readUTF8CharWithoutTag();
+                case TagString: return readStringWithoutTag();
+                case TagList: return readListWithoutTag();
+                case TagMap: return readMapWithoutTag();
+                case TagClass: readClass(); return unserialize();
+                case TagObject: return readObjectWithoutTag();
+                case TagRef: return readRef();
+                case TagError: throw Php::Exception(readString());
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         // -----------------------------------------------------------
         // for PHP

@@ -75,7 +75,7 @@ namespace Hprose {
         }
         virtual ~RealWriterRefer() {}
         inline virtual void set(const Php::Value &value) override {
-            ref[value.ref()] = refcount++;
+            ref[value] = refcount++;
         }
         inline virtual bool write(const Php::Value &value) override {
             auto it = ref.find(value);
@@ -261,17 +261,13 @@ namespace Hprose {
         void writeMapWithRef(const Php::Value &value) {
             if (!refer->write(value)) writeMap(value);
         }
-        int32_t writeClass(const std::string alias, const std::vector<std::string> &fields) {
+        int32_t writeClass(const std::string alias, std::vector<std::string> &fields) {
             stream->write(TagClass).write((int32_t)alias.size()).write(TagQuote).write(alias).write(TagQuote);
             int32_t count = (int32_t)fields.size();
             if (count > 0) stream->write(count);
             stream->write(TagOpenbrace);
             for (int32_t i = 0; i < count; ++i) {
-                std::string field = fields[i];
-                if (field[0] == '\0') {
-                    field = field.substr(field.find('\0', 1) + 1);
-                }
-                writeString(field);
+                writeString(fields[i]);
             }
             stream->write(TagClosebrace);
             int32_t index = (int32_t)fieldsref.size();

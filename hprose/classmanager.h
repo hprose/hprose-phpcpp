@@ -76,21 +76,20 @@ namespace Hprose {
         }
         static std::string get_class(const std::string &alias) {
             std::string cls = _get_class(alias);
-            if (cls.empty()) {
-                if (!Php::class_exists(alias)) {
-                    cls = alias;
-                    size_t pos = 0;
-                    while ((pos = cls.find('_', pos)) != std::string::npos) {
-                        cls[pos] = '\\';
-                    }
-                    if (!Php::class_exists(cls)) {
-                        Php::eval("class " + alias + " {}");
-                        cls = alias;
-                    }
-                    register_class(cls, alias);
+            if (!cls.empty()) return cls;
+            if (!Php::class_exists(alias)) {
+                cls = alias;
+                size_t pos = 0;
+                while ((pos = cls.find('_', pos)) != std::string::npos) {
+                    cls[pos] = '\\';
                 }
+                if (Php::class_exists(cls)) {
+                    register_class(cls, alias);
+                    return cls;
+                }
+                Php::eval("class " + alias + " {}");
             }
-            return cls;
+            return alias;
         }
         // -----------------------------------------------------------
         // for PHP
