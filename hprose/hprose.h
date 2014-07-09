@@ -13,7 +13,7 @@
  *                                                        *
  * hprose header file for php-cpp.                        *
  *                                                        *
- * LastModified: Jul 1, 2014                              *
+ * LastModified: Jul 9, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -34,5 +34,8 @@
 #include "writer.h"
 #include "rawreader.h"
 #include "reader.h"
+#include "serialize.h"
+#include "unserialize.h"
+#include "formatter.h"
 
 #endif /* HPROSE_H_ */

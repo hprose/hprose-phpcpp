@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jul 2, 2014                              *
+ * LastModified: Jul 9, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -28,8 +28,8 @@ namespace Hprose {
     class StringStream: public Php::Base {
     private:
         std::string buffer;
-        int64_t pos;
-        int64_t _mark;
+        size_t pos;
+        size_t _mark;
     public:
         StringStream() : buffer(""), pos(0), _mark(-1) {
         }
@@ -46,20 +46,20 @@ namespace Hprose {
             pos = 0;
             _mark = -1;
         }
-        inline int64_t size() const {
+        inline size_t size() const {
             return buffer.length();
         }
         inline char getchar() {
             return buffer[pos++];
         }
-        std::string read(const int64_t length) {
+        std::string read(const size_t length) {
             std::string str = buffer.substr(pos, length);
             pos += length;
             return str;
         }
         std::string read_full() {
             std::string str = buffer.substr(pos);
-            pos = length();
+            pos = size();
             return str;
         }
         std::string readuntil(const char tag) {
@@ -72,15 +72,29 @@ namespace Hprose {
             return read_full();
         }
         int32_t readint(const char tag) {
-            std::string str = readuntil(tag);
-            if (str.empty()) return 0;
-            return std::stoi(std::move(str));
+            int32_t result = 0;
+            size_t len = buffer.size();
+            char c = getchar();
+            if (c == tag) {
+                return result;
+            }
+            int32_t sign = 1;
+            switch (c) {
+                case TagNeg: sign = -1; // no break here
+                case TagPos: c = getchar(); break;
+            }
+            while (pos < len && c != tag) {
+                result *= 10;
+                result += (c - '0') * sign;
+                c = getchar();
+            }
+            return result;
         }
-        int seek(const int64_t offset, const int whence = SEEK_SET) {
+        int seek(const size_t offset, const int whence = SEEK_SET) {
             switch (whence) {
                 case SEEK_SET: pos = offset; break;
                 case SEEK_CUR: pos += offset; break;
-                case SEEK_END: pos = length() + offset; break;
+                case SEEK_END: pos = size() + offset; break;
             }
             _mark = -1;
             return 0;
@@ -96,13 +110,13 @@ namespace Hprose {
                 pos = _mark;
             }
         }
-        inline void skip(const int64_t n) {
+        inline void skip(const size_t n) {
             pos += n;
         }
         inline bool eof() const {
             return pos >= size();
         }
-        inline StringStream &write(const std::string str, const int64_t length = -1) {
+        inline StringStream &write(const std::string str, const size_t length = -1) {
             if (length == -1) {
                 buffer.append(str);
             }
@@ -111,7 +125,7 @@ namespace Hprose {
             }
             return *this;
         }
-        inline StringStream &write(const char *str, const int64_t length) {
+        inline StringStream &write(const char *str, const size_t length) {
             buffer.append(str, length);
             return *this;
         }
@@ -144,13 +158,13 @@ namespace Hprose {
             init(params[0]);
         }
         Php::Value length() const {
-            return size();
+            return (int64_t)size();
         }
         Php::Value getc() {
             return getchar();
         }
         Php::Value read(Php::Parameters &params) {
-            return read(params[0]);
+            return read(params[0].numericValue());
         }
         Php::Value readfull() {
             return read_full();
@@ -160,13 +174,13 @@ namespace Hprose {
         }
         Php::Value seek(Php::Parameters &params) {
             switch (params.size()) {
-                case 1: return seek(params[0]);
-                case 2: return seek(params[0], params[1]);
+                case 1: return seek(params[0].numericValue());
+                case 2: return seek(params[0].numericValue(), params[1]);
                 default: return -1;
             }
         }
         void skip(Php::Parameters &params) {
-            skip(params[0]);
+            skip(params[0].numericValue());
         }
         Php::Value eof() {
             return eof();

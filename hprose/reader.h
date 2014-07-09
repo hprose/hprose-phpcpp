@@ -21,7 +21,6 @@
 #ifndef HPROSE_READER_H_
 #define HPROSE_READER_H_
 
-#include <unordered_map>
 #include <phpcpp.h>
 #include <math.h>
 
@@ -130,9 +129,8 @@ namespace Hprose {
             classref.push_back(std::move(std::make_pair(classname, fields)));
         }
     public:
-        StringStream *stream;
-        Reader() {};
-        Reader(StringStream &stream, bool simple = false) : stream(&stream) {
+        Reader() : RawReader() {};
+        Reader(StringStream &stream, bool simple = false) : RawReader(stream) {
             init_refer(simple);
         }
         virtual ~Reader() {
@@ -144,16 +142,75 @@ namespace Hprose {
             refer->reset();
         }
         Php::Value readIntegerWithoutTag() {
-            return std::stoll(stream->readuntil(TagSemicolon));
+            return stream->readint(TagSemicolon);
+        }
+        Php::Value readInteger() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case '0': return 0;
+                case '1': return 1;
+                case '2': return 2;
+                case '3': return 3;
+                case '4': return 4;
+                case '5': return 5;
+                case '6': return 6;
+                case '7': return 7;
+                case '8': return 8;
+                case '9': return 9;
+                case TagInteger: return readIntegerWithoutTag();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value readLongWithoutTag() {
             return stream->readuntil(TagSemicolon);
+        }
+        Php::Value readLong() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case '0': return 0;
+                case '1': return 1;
+                case '2': return 2;
+                case '3': return 3;
+                case '4': return 4;
+                case '5': return 5;
+                case '6': return 6;
+                case '7': return 7;
+                case '8': return 8;
+                case '9': return 9;
+                case TagInteger:
+                case TagLong: return readLongWithoutTag();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value readDoubleWithoutTag() {
             return std::stod(stream->readuntil(TagSemicolon));
         }
         Php::Value readInfinityWithoutTag() {
             return (stream->getchar() == TagNeg) ? -INFINITY : INFINITY;
+        }
+        Php::Value readDouble() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case '0': return 0;
+                case '1': return 1;
+                case '2': return 2;
+                case '3': return 3;
+                case '4': return 4;
+                case '5': return 5;
+                case '6': return 6;
+                case '7': return 7;
+                case '8': return 8;
+                case '9': return 9;
+                case TagInteger:
+                case TagLong:
+                case TagDouble: return readDoubleWithoutTag();
+                case TagNaN: return NAN;
+                case TagInfinity: return readInfinityWithoutTag();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value readDateWithoutTag() {
             Php::Value value;
@@ -187,6 +244,16 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
+        Php::Value readDate() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagDate: return readDateWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
         Php::Value readTimeWithoutTag() {
             Php::Value value;
             int32_t hour = std::stoi(stream->read(2));
@@ -210,12 +277,33 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
+        Php::Value readTime() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagTime: return readTimeWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
         Php::Value readBytesWithoutTag() {
             int32_t count = stream->readint(TagQuote);
             Php::Value value = stream->read(count);
             stream->skip(1);
             refer->set(value);
             return value;
+        }
+        Php::Value readBytes() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagEmpty: return "";
+                case TagBytes: return readBytesWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value readUTF8CharWithoutTag() {
             char buf[4];
@@ -259,6 +347,16 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
+        Php::Value readGuid() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagGuid: return readGuidWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
         Php::Value readListWithoutTag() {
             Php::Value list(Php::Type::Array);
             refer->set(list.ref());
@@ -269,6 +367,16 @@ namespace Hprose {
             stream->skip(1);
             return list;
         }
+        Php::Value readList() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagList: return readListWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
         Php::Value readMapWithoutTag() {
             Php::Value map(Php::Type::Array);
             refer->set(map.ref());
@@ -278,6 +386,16 @@ namespace Hprose {
             }
             stream->skip(1);
             return map;
+        }
+        Php::Value readMap() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagMap: return readMapWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value readObjectWithoutTag() {
             auto pair = classref[stream->readint(TagOpenbrace)];
@@ -291,6 +409,17 @@ namespace Hprose {
             }
             stream->skip(1);
             return object;
+        }
+        Php::Value readObject() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagNull: return nullptr;
+                case TagClass: readClass(); return readObject();
+                case TagObject: return readObjectWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
         }
         Php::Value unserialize() {
             char tag = stream->getchar();
@@ -321,7 +450,7 @@ namespace Hprose {
                 case TagString: return readStringWithoutTag();
                 case TagList: return readListWithoutTag();
                 case TagMap: return readMapWithoutTag();
-                case TagClass: readClass(); return unserialize();
+                case TagClass: readClass(); return readObject();
                 case TagObject: return readObjectWithoutTag();
                 case TagRef: return readRef();
                 case TagError: throw Php::Exception(readString());
@@ -351,6 +480,54 @@ namespace Hprose {
                  })
         .method("unserialize",
                 &Hprose::Reader::unserialize)
+        .method("readIntegerWithoutTag",
+                &Hprose::Reader::readIntegerWithoutTag)
+        .method("readInteger",
+                &Hprose::Reader::readInteger)
+        .method("readLongWithoutTag",
+                &Hprose::Reader::readLongWithoutTag)
+        .method("readLong",
+                &Hprose::Reader::readLong)
+        .method("readDoubleWithoutTag",
+                &Hprose::Reader::readDoubleWithoutTag)
+        .method("readDouble",
+                &Hprose::Reader::readDouble)
+        .method("readInfinityWithoutTag",
+                &Hprose::Reader::readInfinityWithoutTag)
+        .method("readDateWithoutTag",
+                &Hprose::Reader::readDateWithoutTag)
+        .method("readDate",
+                &Hprose::Reader::readDate)
+        .method("readTimeWithoutTag",
+                &Hprose::Reader::readTimeWithoutTag)
+        .method("readTime",
+                &Hprose::Reader::readTime)
+        .method("readBytesWithoutTag",
+                &Hprose::Reader::readBytesWithoutTag)
+        .method("readBytes",
+                &Hprose::Reader::readBytes)
+        .method("readUTF8CharWithoutTag",
+                &Hprose::Reader::readUTF8CharWithoutTag)
+        .method("readStringWithoutTag",
+                &Hprose::Reader::readStringWithoutTag)
+        .method("readString",
+                &Hprose::Reader::readString)
+        .method("readGuidWithoutTag",
+                &Hprose::Reader::readGuidWithoutTag)
+        .method("readGuid",
+                &Hprose::Reader::readGuid)
+        .method("readListWithoutTag",
+                &Hprose::Reader::readListWithoutTag)
+        .method("readList",
+                &Hprose::Reader::readList)
+        .method("readMapWithoutTag",
+                &Hprose::Reader::readMapWithoutTag)
+        .method("readMap",
+                &Hprose::Reader::readMap)
+        .method("readObjectWithoutTag",
+                &Hprose::Reader::readObjectWithoutTag)
+        .method("readObject",
+                &Hprose::Reader::readObject)
         .method("reset", &Hprose::Reader::reset);
         ext.add(std::move(c));
     }

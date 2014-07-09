@@ -392,6 +392,79 @@ namespace Hprose {
         void serialize(Php::Parameters &params) {
             serialize(params[0]);
         }
+        void writeInteger(Php::Parameters &params) {
+            writeInteger(params[0]);
+        }
+        void writeLong(Php::Parameters &params) {
+            writeLong(params[0]);
+        }
+        void writeDouble(Php::Parameters &params) {
+            writeDouble(params[0]);
+        }
+        void writeBoolean(Php::Parameters &params) {
+            writeBoolean(params[0]);
+        }
+        void writeDateTime(Php::Parameters &params) {
+            writeDateTime(params[0]);
+        }
+        void writeDateTimeWithRef(Php::Parameters &params) {
+            writeDateTimeWithRef(params[0]);
+        }
+        void writeDate(Php::Parameters &params) {
+            if (params[0].is("HproseDateTime")) {
+                writeHproseDateTime(params[0]);
+            }
+            else {
+                writeHproseDate(params[0]);
+            }
+        }
+        void writeDateWithRef(Php::Parameters &params) {
+            if (params[0].is("HproseDateTime")) {
+                writeHproseDateTimeWithRef(params[0]);
+            }
+            else {
+                writeHproseDateWithRef(params[0]);
+            }
+        }
+        void writeTime(Php::Parameters &params) {
+            writeHproseTime(params[0]);
+        }
+        void writeTimeWithRef(Php::Parameters &params) {
+            writeHproseTimeWithRef(params[0]);
+        }
+        void writeBytes(Php::Parameters &params) {
+            writeBytes(params[0]);
+        }
+        void writeBytesWithRef(Php::Parameters &params) {
+            writeBytesWithRef(params[0]);
+        }
+        void writeUTF8Char(Php::Parameters &params) {
+            writeUTF8Char(params[0]);
+        }
+        void writeString(Php::Parameters &params) {
+            writeString(params[0]);
+        }
+        void writeStringWithRef(Php::Parameters &params) {
+            writeStringWithRef(params[0]);
+        }
+        void writeList(Php::Parameters &params) {
+            writeList(params[0]);
+        }
+        void writeListWithRef(Php::Parameters &params) {
+            writeListWithRef(params[0]);
+        }
+        void writeMap(Php::Parameters &params) {
+            writeMap(params[0]);
+        }
+        void writeMapWithRef(Php::Parameters &params) {
+            writeMapWithRef(params[0]);
+        }
+        void writeObject(Php::Parameters &params) {
+            writeObject(params[0]);
+        }
+        void writeObjectWithRef(Php::Parameters &params) {
+            writeObjectWithRef(params[0]);
+        }
     };
     inline void publish_writer(Php::Extension &ext) {
         Php::Class<Writer> c("HproseWriter");
@@ -405,6 +478,111 @@ namespace Hprose {
                 &Hprose::Writer::serialize,
                 {
                     Php::ByRef("var", Php::Type::Null)
+                })
+        .method("writeInteger",
+                &Hprose::Writer::writeInteger,
+                {
+                    Php::ByVal("i", Php::Type::Numeric)
+                })
+        .method("writeLong",
+                &Hprose::Writer::writeLong,
+                {
+                    Php::ByVal("l", Php::Type::Numeric)
+                })
+        .method("writeDouble",
+                &Hprose::Writer::writeDouble,
+                {
+                    Php::ByVal("d", Php::Type::Float)
+                })
+        .method("writeBoolean",
+                &Hprose::Writer::writeBoolean,
+                {
+                    Php::ByVal("b", Php::Type::Bool)
+                })
+        .method("writeDateTime",
+                &Hprose::Writer::writeDateTime,
+                {
+                    Php::ByVal("datetime", "DateTime")
+                })
+        .method("writeDateTimeWithRef",
+                &Hprose::Writer::writeDateTimeWithRef,
+                {
+                    Php::ByVal("datetime", "DateTime")
+                })
+        .method("writeDate",
+                &Hprose::Writer::writeDate,
+                {
+                    Php::ByVal("date", "HproseDate")
+                })
+        .method("writeDateWithRef",
+                &Hprose::Writer::writeDateWithRef,
+                {
+                    Php::ByVal("date", "HproseDate")
+                })
+        .method("writeTime",
+                &Hprose::Writer::writeTime,
+                {
+                    Php::ByVal("time", "HproseTime")
+                })
+        .method("writeTimeWithRef",
+                &Hprose::Writer::writeTimeWithRef,
+                {
+                    Php::ByVal("time", "HproseTime")
+                })
+        .method("writeBytes",
+                &Hprose::Writer::writeBytes,
+                {
+                    Php::ByVal("bytes", Php::Type::Null)
+                })
+        .method("writeBytesWithRef",
+                &Hprose::Writer::writeBytesWithRef,
+                {
+                    Php::ByVal("bytes", Php::Type::Null)
+                })
+        .method("writeUTF8Char",
+                &Hprose::Writer::writeUTF8Char,
+                {
+                    Php::ByVal("char", Php::Type::String)
+                })
+        .method("writeString",
+                &Hprose::Writer::writeString,
+                {
+                    Php::ByVal("str", Php::Type::String)
+                })
+        .method("writeStringWithRef",
+                &Hprose::Writer::writeStringWithRef,
+                {
+                    Php::ByVal("str", Php::Type::String)
+                })
+        .method("writeList",
+                &Hprose::Writer::writeList,
+                {
+                    Php::ByRef("list", Php::Type::Array)
+                })
+        .method("writeListWithRef",
+                &Hprose::Writer::writeListWithRef,
+                {
+                    Php::ByRef("list", Php::Type::Array)
+                })
+        .method("writeMap",
+                &Hprose::Writer::writeMap,
+                {
+                    Php::ByRef("map", Php::Type::Null)
+                })
+        .method("writeMapWithRef",
+                &Hprose::Writer::writeMapWithRef,
+                {
+                    Php::ByRef("map", Php::Type::Null)
+                })
+        .method("writeObject",
+                &Hprose::Writer::writeObject,
+                {
+                    Php::ByRef("list", Php::Type::Object)
+                })
+        .method("writeObjectWithRef",
+                &Hprose::Writer::writeObjectWithRef,
+                {
+                    Php::ByRef("list", Php::Type::Object)
                 })
         .method("reset", &Hprose::Writer::reset);
         ext.add(std::move(c));
