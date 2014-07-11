@@ -37,5 +37,6 @@
 #include "serialize.h"
 #include "unserialize.h"
 #include "formatter.h"
+#include "httpserver.h"
 
 #endif /* HPROSE_H_ */

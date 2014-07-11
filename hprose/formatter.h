@@ -9,11 +9,11 @@
 
 /**********************************************************\
  *                                                        *
- * hprose/unserialize.h                                   *
+ * hprose/formatter.h                                     *
  *                                                        *
- * hprose unserialize library for php-cpp.                *
+ * hprose formatter library for php-cpp.                  *
  *                                                        *
- * LastModified: Jul 9, 2014                              *
+ * LastModified: Jul 11, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -55,4 +55,4 @@ namespace Hprose {
     }
 }
 
-#endif /* HPROSE_UNSERIALIZE_H_ */
+#endif /* HPROSE_FORMATTER_H_ */
