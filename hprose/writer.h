@@ -28,20 +28,20 @@
 namespace Hprose {
     class WriterRefer {
     public:
-        inline virtual void set(const Php::Value &value) = 0;
-        inline virtual bool write(const Php::Value &value) = 0;
-        inline virtual void reset() = 0;
+        virtual void set(const Php::Value &value) = 0;
+        virtual bool write(const Php::Value &value) = 0;
+        virtual void reset() = 0;
         WriterRefer() {}
         virtual ~WriterRefer() {}
     };
 
     class FakeWriterRefer : public WriterRefer {
     public:
-        inline virtual void set(const Php::Value &value) override {}
-        inline virtual bool write(const Php::Value &value) override {
+        virtual void set(const Php::Value &value) override {}
+        virtual bool write(const Php::Value &value) override {
             return false;
         };
-        inline virtual void reset() override {};
+        virtual void reset() override {};
         FakeWriterRefer() {}
         virtual ~FakeWriterRefer() {}
     };
@@ -74,10 +74,10 @@ namespace Hprose {
             reset();
         }
         virtual ~RealWriterRefer() {}
-        inline virtual void set(const Php::Value &value) override {
+        virtual void set(const Php::Value &value) override {
             ref[value] = refcount++;
         }
-        inline virtual bool write(const Php::Value &value) override {
+        virtual bool write(const Php::Value &value) override {
             auto it = ref.find(value);
             if (it != ref.end()) {
                 stream->write(TagRef).write(it->second).write(TagSemicolon);
@@ -85,7 +85,7 @@ namespace Hprose {
             }
             return false;
         };
-        inline virtual void reset() override {
+        virtual void reset() override {
             ref.clear();
             refcount = 0;
         };

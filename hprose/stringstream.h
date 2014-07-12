@@ -73,7 +73,7 @@ namespace Hprose {
         }
         int32_t readint(const char tag) {
             int32_t result = 0;
-            size_t len = buffer.size();
+            int32_t len = (int32_t)buffer.size();
             char c = getchar();
             if (c == tag) {
                 return result;

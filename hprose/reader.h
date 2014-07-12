@@ -36,11 +36,11 @@ namespace Hprose {
 
     class FakeReaderRefer : public ReaderRefer {
     public:
-        inline virtual void set(const Php::Value &value) override {}
-        inline virtual const Php::Value &read(int32_t index) override {
+        virtual void set(const Php::Value &value) override {}
+        virtual const Php::Value &read(int32_t index) override {
             throw Php::Exception(std::string("Unexcepted serialize tag '") + TagRef + "' in stream");
         };
-        inline virtual void reset() override {};
+        virtual void reset() override {};
         FakeReaderRefer() {}
         virtual ~FakeReaderRefer() {}
     };
@@ -49,13 +49,13 @@ namespace Hprose {
     private:
         std::vector<Php::Value> ref;
     public:
-        inline virtual void set(const Php::Value &value) override {
+        virtual void set(const Php::Value &value) override {
             ref.push_back(value);
         }
-        inline virtual const Php::Value &read(int32_t index) override {
+        virtual const Php::Value &read(int32_t index) override {
             return ref[index];
         }
-        inline virtual void reset() override {
+        virtual void reset() override {
             ref.clear();
         }
         RealReaderRefer() {}
