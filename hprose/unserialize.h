@@ -13,7 +13,7 @@
  *                                                        *
  * hprose unserialize library for php-cpp.                *
  *                                                        *
- * LastModified: Jul 9, 2014                              *
+ * LastModified: Jul 12, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -35,7 +35,7 @@ namespace Hprose {
     Php::Value unserialize_list_with_stream(Php::Parameters &params) {
         StringStream *stream = (StringStream *)params[0].implementation();
         Reader reader(*stream);
-        return reader.readList();
+        return reader.readListWithoutTag();
     }
 
     inline Php::Value unserialize(Php::Parameters &params) {
