@@ -25,6 +25,13 @@
 
 namespace Hprose {
 
+    std::string &trim(std::string &s) {
+        if (s.empty()) return s;
+        s.erase(0, s.find_first_not_of(" "));
+        s.erase(s.find_last_not_of(" ") + 1);
+        return s;
+    }
+
     class Bytes : public Php::Base {
     public:
         std::string value;
@@ -69,9 +76,7 @@ namespace Hprose {
         return params[0].contains(params[1]);
     }
 
-    bool is_utf8(const Php::Value &value) {
-        const unsigned char *str = (const unsigned char *)value.rawValue();
-        int32_t len = value.size();
+    inline bool is_utf8(const unsigned char *str, int32_t len) {
         for (int32_t i = 0; i < len; ++i) {
             const unsigned char &c = str[i];
             switch (c >> 4) {
@@ -106,13 +111,19 @@ namespace Hprose {
         return true;
     }
 
+    inline bool is_utf8(const std::string &str) {
+        return is_utf8((const unsigned char *)str.c_str(), (int32_t)str.size());
+    }
+
+    inline bool is_utf8(const Php::Value &value) {
+        return is_utf8((const unsigned char *)value.rawValue(), value.size());
+    }
+
     Php::Value is_utf8(Php::Parameters &params) {
         return is_utf8(params[0]);
     }
 
-    int32_t ustrlen(const Php::Value &value) {
-        const unsigned char *str = (const unsigned char *)value.rawValue();
-        const int32_t length = value.size();
+    inline int32_t ustrlen(const unsigned char *str, const int32_t length) {
         int32_t len = length, pos = 0;
         while (pos < length) {
             const unsigned char &a = str[pos++];
@@ -133,6 +144,14 @@ namespace Hprose {
             }
         }
         return len;
+    }
+
+    inline int32_t ustrlen(const std::string &str) {
+        return ustrlen((const unsigned char *)str.c_str(), (int32_t)str.size());
+    }
+
+    inline int32_t ustrlen(const Php::Value &value) {
+        return ustrlen((const unsigned char *)value.rawValue(), value.size());
     }
 
     Php::Value ustrlen(Php::Parameters &params) {

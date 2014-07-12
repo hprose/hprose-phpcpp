@@ -21,7 +21,10 @@
 #ifndef HPROSE_HTTPSERVER_H_
 #define HPROSE_HTTPSERVER_H_
 
+/*
+
 #include <unordered_map>
+#include <regex>
 #include <phpcpp.h>
 
 namespace Hprose {
@@ -52,7 +55,7 @@ namespace Hprose {
     const int32_t E_ALL               = 2047;
 #endif
 
-    inline const char *error_message(int32_t error_code) {
+    inline std::string error_message(int32_t error_code) {
         switch (error_code) {
             case E_ERROR: return "Error";
             case E_WARNING: return "Warning";
@@ -93,11 +96,61 @@ namespace Hprose {
 
     class HttpServer : public Php::Base {
     private:
-
+        std::unordered_map<std::string, Php::Value> functions;
+        std::unordered_map<std::string, std::string> funcnames;
+        std::unordered_map<std::string, int32_t> resultmodes;
+        std::unordered_map<std::string, Php::Value> simplemodes;
+        std::vector<Php::Value> filters;
+        std::set<std::string> origins;
+        bool debug = false;
+        bool crossdomain = false;
+        bool p3p = false;
+        bool get = true;
+        bool simple = false;
+        int32_t error_type = E_ALL & ~E_NOTICE;
+        std::string error = "";
+        Php::Value &inputFilter(Php::Value &data) {
+            int32_t count = (int32_t)filters.size();
+            for (int32_t i = count - 1; i >= 0; --i) {
+                data = filters[i].call("inputFilter", data, this);
+            }
+            return data;
+        }
+        Php::Value &outputFilter(Php::Value &data) {
+            int32_t count = (int32_t)filters.size();
+            for (int32_t i = 0; i < count; ++i) {
+                data = filters[i].call("outputFilter", data, this);
+            }
+            return data;
+        }
     public:
-
+        Php::Value __filterHandler(Php::Parameters &params) {
+            Php::Value &data = params[0];
+            std::regex regex("<b>.*? error<\\/b>:(.*?)<br");
+            std::smatch match;
+            if (std::regex_match(data.stringValue(), match, regex)) {
+                std::string error = std::regex_replace(match[1].str(),
+                                                       std::regex(debug ?
+                                                                  "<.*?>" :
+                                                                  " in <b>.*<\\/b>$"),
+                                                       "");
+                data = TagError + serialize_string(trim(error)) + TagEnd;
+            }
+            return outputFilter(data);
+        }
+        Php::Value __errorHandler(Php::Parameters &params) {
+            int32_t err_no = params[0];
+            std::string err_str = params[1];
+            std::string err_file = params[2];
+            std::string err_line = params[3];
+            if (debug) err_str += " in " + err_file + " on line " + err_line;
+            error = error_message(err_no) + ": " + err_str;
+            sendError();
+            Php::exit();
+        }
     };
 }
 
+*/
 
 #endif /* HPROSE_HTTPSERVER_H_ */
