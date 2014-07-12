@@ -27,9 +27,9 @@
 namespace Hprose {
     class ReaderRefer {
     public:
-        inline virtual void set(const Php::Value &value) = 0;
-        inline virtual const Php::Value &read(int32_t index) = 0;
-        inline virtual void reset() = 0;
+        virtual void set(const Php::Value &value) = 0;
+        virtual const Php::Value &read(int32_t index) = 0;
+        virtual void reset() = 0;
         ReaderRefer() {}
         virtual ~ReaderRefer() {}
     };
