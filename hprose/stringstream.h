@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jul 9, 2014                              *
+ * LastModified: Jul 12, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -28,8 +28,8 @@ namespace Hprose {
     class StringStream: public Php::Base {
     private:
         std::string buffer;
-        size_t pos;
-        size_t _mark;
+        int32_t pos;
+        int32_t _mark;
     public:
         StringStream() : buffer(""), pos(0), _mark(-1) {
         }
@@ -46,13 +46,13 @@ namespace Hprose {
             pos = 0;
             _mark = -1;
         }
-        inline size_t size() const {
-            return buffer.length();
+        inline int32_t size() const {
+            return (int32_t)buffer.length();
         }
         inline char getchar() {
             return buffer[pos++];
         }
-        std::string read(const size_t length) {
+        std::string read(const int32_t length) {
             std::string str = buffer.substr(pos, length);
             pos += length;
             return str;
@@ -63,7 +63,7 @@ namespace Hprose {
             return str;
         }
         std::string readuntil(const char tag) {
-            int64_t p = buffer.find(tag, pos);
+            int32_t p = (int32_t)buffer.find(tag, pos);
             if (p > 0) {
                 std::string str = buffer.substr(pos, p - pos);
                 pos = p + 1;
@@ -90,7 +90,7 @@ namespace Hprose {
             }
             return result;
         }
-        int seek(const size_t offset, const int whence = SEEK_SET) {
+        int seek(const int32_t offset, const int whence = SEEK_SET) {
             switch (whence) {
                 case SEEK_SET: pos = offset; break;
                 case SEEK_CUR: pos += offset; break;
@@ -110,13 +110,13 @@ namespace Hprose {
                 pos = _mark;
             }
         }
-        inline void skip(const size_t n) {
+        inline void skip(const int32_t n) {
             pos += n;
         }
         inline bool eof() const {
             return pos >= size();
         }
-        inline StringStream &write(const std::string str, const size_t length = -1) {
+        inline StringStream &write(const std::string str, const int32_t length = -1) {
             if (length == -1) {
                 buffer.append(str);
             }
@@ -125,7 +125,7 @@ namespace Hprose {
             }
             return *this;
         }
-        inline StringStream &write(const char *str, const size_t length) {
+        inline StringStream &write(const char *str, const int32_t length) {
             buffer.append(str, length);
             return *this;
         }
@@ -164,7 +164,7 @@ namespace Hprose {
             return getchar();
         }
         Php::Value read(Php::Parameters &params) {
-            return read(params[0].numericValue());
+            return read(params[0]);
         }
         Php::Value readfull() {
             return read_full();
@@ -174,13 +174,13 @@ namespace Hprose {
         }
         Php::Value seek(Php::Parameters &params) {
             switch (params.size()) {
-                case 1: return seek(params[0].numericValue());
-                case 2: return seek(params[0].numericValue(), params[1]);
+                case 1: return seek(params[0]);
+                case 2: return seek(params[0], params[1]);
                 default: return -1;
             }
         }
         void skip(Php::Parameters &params) {
-            skip(params[0].numericValue());
+            skip(params[0]);
         }
         Php::Value eof() {
             return eof();
