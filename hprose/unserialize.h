@@ -13,7 +13,7 @@
  *                                                        *
  * hprose unserialize library for php-cpp.                *
  *                                                        *
- * LastModified: Jul 12, 2014                             *
+ * LastModified: Jul 13, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -52,18 +52,21 @@ namespace Hprose {
                 {
                     Php::ByVal("s", "HproseStringStream"),
                     Php::ByVal("simple", Php::Type::Bool, false)
-                })
+                },
+                true)
         .add("hprose_unserialize_list_with_stream",
              &unserialize_list_with_stream,
              {
                  Php::ByVal("s", "HproseStringStream")
-             })
+             },
+             true)
         .add("hprose_unserialize",
              &unserialize,
              {
                  Php::ByVal("s", Php::Type::String),
                  Php::ByVal("simple", Php::Type::Bool, false)
-             });
+             },
+             true);
     }
 }
 

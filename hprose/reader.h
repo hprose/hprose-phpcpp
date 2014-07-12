@@ -479,7 +479,7 @@ namespace Hprose {
                      Php::ByVal("simple", Php::Type::Bool, false)
                  })
         .method("unserialize",
-                &Hprose::Reader::unserialize)
+                &Hprose::Reader::unserialize, {}, true)
         .method("readIntegerWithoutTag",
                 &Hprose::Reader::readIntegerWithoutTag)
         .method("readInteger",
@@ -517,13 +517,13 @@ namespace Hprose {
         .method("readGuid",
                 &Hprose::Reader::readGuid)
         .method("readListWithoutTag",
-                &Hprose::Reader::readListWithoutTag)
+                &Hprose::Reader::readListWithoutTag, {}, true)
         .method("readList",
-                &Hprose::Reader::readList)
+                &Hprose::Reader::readList, {}, true)
         .method("readMapWithoutTag",
-                &Hprose::Reader::readMapWithoutTag)
+                &Hprose::Reader::readMapWithoutTag, {}, true)
         .method("readMap",
-                &Hprose::Reader::readMap)
+                &Hprose::Reader::readMap, {}, true)
         .method("readObjectWithoutTag",
                 &Hprose::Reader::readObjectWithoutTag)
         .method("readObject",

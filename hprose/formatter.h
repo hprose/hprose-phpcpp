@@ -13,7 +13,7 @@
  *                                                        *
  * hprose formatter library for php-cpp.                  *
  *                                                        *
- * LastModified: Jul 11, 2014                             *
+ * LastModified: Jul 13, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -50,7 +50,8 @@ namespace Hprose {
                 {
                     Php::ByVal("s", Php::Type::String),
                     Php::ByVal("simple", Php::Type::Bool, false)
-                });
+                },
+                true);
         ext.add(std::move(c));
     }
 }
