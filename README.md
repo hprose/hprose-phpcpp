@@ -70,3 +70,7 @@ to build and install it. then add
     extension=hprose.so
 
 to php.ini by yourself.
+
+## How to use
+
+There is no difference with the [hprose-php](https://github.com/hprose/hprose-php). In fact, you still need to use hprose-php (And you should update it to the lastest version). After installation of this extension, the performance will increase exponentially.
