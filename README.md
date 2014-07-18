@@ -38,6 +38,7 @@ But now, The PHP-CPP official version does not support hprose-phpcpp,
 so you need to use my modified version:
 
     git clone https://github.com/andot/PHP-CPP.git
+    cd PHP-CPP
     git checkout my_branches
 
 to install it on linux, you can run:
