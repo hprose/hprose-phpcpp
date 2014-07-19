@@ -13,7 +13,7 @@
  *                                                        *
  * hprose writer class for php-cpp.                       *
  *                                                        *
- * LastModified: Jul 6, 2014                              *
+ * LastModified: Jul 19, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -247,14 +247,13 @@ namespace Hprose {
             const Php::Value &val = (value.className() == "HproseMap" ?
                                      ((Map *)value.implementation())->value :
                                      value);
-            std::vector<Php::Value> keys = val.keys();
-            int32_t count = (int32_t)keys.size();
+            int32_t count = val.size();
             stream->write(TagMap);
             if (count > 0) stream->write(count);
             stream->write(TagOpenbrace);
-            for (int32_t i = 0; i < count; ++i) {
-                serialize(keys[i]);
-                serialize(value.get(keys[i]));
+            for (auto &iter : val) {
+                serialize(iter.first);
+                serialize(iter.second);
             };
             stream->write(TagClosebrace);
         }
