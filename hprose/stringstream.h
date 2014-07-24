@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jul 12, 2014                             *
+ * LastModified: Jul 24, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -64,7 +64,7 @@ namespace Hprose {
         }
         std::string readuntil(const char tag) {
             auto p = buffer.find(tag, pos);
-            if (p != string::npos) {
+            if (p != std::string::npos) {
                 std::string str = buffer.substr(pos, (int32_t)p - pos);
                 pos = (int32_t)p + 1;
                 return str;
