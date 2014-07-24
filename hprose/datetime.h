@@ -13,7 +13,7 @@
  *                                                        *
  * hprose datetime class for php-cpp.                     *
  *                                                        *
- * LastModified: Jul 6, 2014                              *
+ * LastModified: Jul 19, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -22,7 +22,6 @@
 #define HPROSE_DATETIME_H_
 
 #include <phpcpp.h>
-#include <sys/time.h>
 #include "date.h"
 #include "time.h"
 

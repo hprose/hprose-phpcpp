@@ -21,6 +21,9 @@
 #include "date.h"
 
 namespace Hprose {
+#ifdef WIN32
+    const long timezone_diff_secs = _timezone_diff_secs();
+#endif
     const int32_t Date::days_to_month_365[] = { 0,
                                                 31,
                                                 59,

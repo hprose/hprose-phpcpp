@@ -219,7 +219,7 @@ namespace Hprose {
         static void unexpectedTag(Php::Parameters &params) {
             int n = (int)params.size();
             if (n >= 1) {
-                std::string tag = params[0];
+                std::string tag = params[0].stringValue();
                 std::string expectTags = "";
                 if (n >= 2) {
                     expectTags = params[1].stringValue();

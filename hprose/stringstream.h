@@ -147,6 +147,9 @@ namespace Hprose {
             buffer.append(buf, n);
             return *this;
         }
+        inline std::string to_string() const {
+            return buffer;
+        }
         // -----------------------------------------------------------
         // for PHP
         void __construct(Php::Parameters &params) {

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose date class for php-cpp.                         *
  *                                                        *
- * LastModified: Jul 6, 2014                              *
+ * LastModified: Jul 19, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,6 +26,27 @@
 
 namespace Hprose {
     class DateTime;
+
+#ifdef WIN32
+    inline long _timezone_diff_secs() {
+        struct tm * timeinfo;
+        time_t secs, local_secs, gmt_secs;
+        time(&secs);
+        timeinfo = localtime(&secs);
+        local_secs = mktime(timeinfo);
+        timeinfo = gmtime(&secs);
+        gmt_secs = mktime(timeinfo);
+        return local_secs - gmt_secs;
+    }
+    extern const long timezone_diff_secs;
+    inline time_t timegm(struct tm *gmt_tm) {
+        return mktime(gmt_tm) + timezone_diff_secs;
+    }
+    inline struct tm* localtime_r(const time_t* timer, struct tm* result) {
+        *result = *localtime(timer);
+        return result;
+    }
+#endif
 
     class Date: public Php::Base {
     private:

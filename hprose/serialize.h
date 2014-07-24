@@ -13,7 +13,7 @@
  *                                                        *
  * hprose serialize library for php-cpp.                  *
  *                                                        *
- * LastModified: Jul 9, 2014                              *
+ * LastModified: Jul 19, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -51,7 +51,7 @@ namespace Hprose {
         StringStream stream;
         Writer writer(stream, simple);
         writer.writeList(list);
-        return stream.toString();
+        return stream.to_string();
     }
 
     Php::Value serialize_list(Php::Parameters &params) {
@@ -67,7 +67,7 @@ namespace Hprose {
         StringStream stream;
         Writer writer(stream, simple);
         writer.serialize(value);
-        return stream.toString();
+        return stream.to_string();
     }
 
     inline Php::Value serialize(Php::Parameters &params) {
