@@ -63,10 +63,10 @@ namespace Hprose {
             return str;
         }
         std::string readuntil(const char tag) {
-            int32_t p = (int32_t)buffer.find(tag, pos);
-            if (p > 0) {
-                std::string str = buffer.substr(pos, p - pos);
-                pos = p + 1;
+            auto p = buffer.find(tag, pos);
+            if (p != string::npos) {
+                std::string str = buffer.substr(pos, (int32_t)p - pos);
+                pos = (int32_t)p + 1;
                 return str;
             }
             return read_full();
