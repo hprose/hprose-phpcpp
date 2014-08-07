@@ -13,7 +13,7 @@
  *                                                        *
  * hprose rawreader class for php-cpp.                    *
  *                                                        *
- * LastModified: Jul 2, 2014                              *
+ * LastModified: Aug 6, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -108,7 +108,7 @@ namespace Hprose {
             stream->skip(1);
         }
         inline void readGuidRaw(StringStream &ostream) {
-            ostream.write(ostream.read(38));
+            ostream.write(stream.read(38));
         }
         inline void readComplexRaw(StringStream &ostream) {
             ostream.write(stream->readuntil(TagOpenbrace) + TagOpenbrace);
