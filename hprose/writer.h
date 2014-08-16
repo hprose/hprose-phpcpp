@@ -13,7 +13,7 @@
  *                                                        *
  * hprose writer class for php-cpp.                       *
  *                                                        *
- * LastModified: Jul 19, 2014                             *
+ * LastModified: Aug 16, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -410,7 +410,7 @@ namespace Hprose {
             writeDateTimeWithRef(params[0]);
         }
         void writeDate(Php::Parameters &params) {
-            if (params[0].is("HproseDateTime")) {
+            if (params[0].instanceOf("HproseDateTime")) {
                 writeHproseDateTime(params[0]);
             }
             else {
@@ -418,7 +418,7 @@ namespace Hprose {
             }
         }
         void writeDateWithRef(Php::Parameters &params) {
-            if (params[0].is("HproseDateTime")) {
+            if (params[0].instanceOf("HproseDateTime")) {
                 writeHproseDateTimeWithRef(params[0]);
             }
             else {

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose time class for php-cpp.                         *
  *                                                        *
- * LastModified: Jul 19, 2014                             *
+ * LastModified: Aug 16, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -157,7 +157,7 @@ namespace Hprose {
                              val.get("minutes", 7),
                              val.get("seconds", 7));
                     }
-                    else if (val.is("HproseTime")) {
+                    else if (val.instanceOf("HproseTime")) {
                         Time *time = (Time *)val.implementation();
                         init(time->hour,
                              time->minute,

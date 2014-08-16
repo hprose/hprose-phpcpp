@@ -13,7 +13,7 @@
  *                                                        *
  * hprose datetime class for php-cpp.                     *
  *                                                        *
- * LastModified: Jul 19, 2014                             *
+ * LastModified: Aug 16, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -253,7 +253,7 @@ namespace Hprose {
                 }
                 case 2: {
                     Php::Value &v1 = params[0], &v2 = params[1];
-                    if (v1.is("HproseDate") && v2.is("HproseTime")) {
+                    if (v1.instanceOf("HproseDate") && v2.instanceOf("HproseTime")) {
                         Date *date = (Date *)v1.implementation();
                         timebuf = date->timebuf;
                         utc = date->utc;
@@ -328,21 +328,21 @@ namespace Hprose {
         }
         Php::Value after(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.is("HproseDateTime")) {
+            if (!val.instanceOf("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return after((DateTime *)val.implementation());
         }
         Php::Value before(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.is("HproseDateTime")) {
+            if (!val.instanceOf("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return before((DateTime *)val.implementation());
         }
         Php::Value equals(Php::Parameters &params) const {
             Php::Value &val = params[0];
-            if (!val.is("HproseDateTime")) {
+            if (!val.instanceOf("HproseDateTime")) {
                 val = Php::Object("HproseDateTime", val);
             }
             return equals((DateTime *)val.implementation());
