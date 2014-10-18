@@ -49,11 +49,20 @@ If you want to install it as a static library, you can run:
 
     make -f Makefile.static && sudo make -f Makefile.static install
 
-If you use Mac OS X, you need to change something in Makefile.
+If you use Mac OS X, you need to change like this in Makefile.
+
+find **LINKER_FLAGS        =   -shared**  change to **LINKER_FLAGS        =   -shared -undefined dynamic_lookup** then save file
+
+    make && sudo make install
 
 Then, download hprose-phpcpp:
 
     git clone https://github.com/hprose/hprose-phpcpp.git
+
+edit MakeFile
+
+    cd hprose-phpcpp
+    vim MakeFile
 
 if you use linux, run:
 
