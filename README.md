@@ -58,11 +58,7 @@ find **LINKER_FLAGS        =   -shared**  change to **LINKER_FLAGS        =   -s
 Then, download hprose-phpcpp:
 
     git clone https://github.com/hprose/hprose-phpcpp.git
-
-edit MakeFile
-
     cd hprose-phpcpp
-    vim MakeFile
 
 if you use linux, run:
 
