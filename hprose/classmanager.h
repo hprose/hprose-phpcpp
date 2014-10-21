@@ -13,7 +13,7 @@
  *                                                        *
  * hprose classmanager class for php-cpp.                 *
  *                                                        *
- * LastModified: Jul 6, 2014                              *
+ * LastModified: Oct 21, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -87,7 +87,7 @@ namespace Hprose {
                     register_class(cls, alias);
                     return cls;
                 }
-                Php::eval("class " + alias + " {}");
+                Php::eval("class " + alias + " { public function __construct() {} }");
             }
             return alias;
         }
