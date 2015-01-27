@@ -13,7 +13,7 @@
  *                                                        *
  * hprose reader class for php-cpp.                       *
  *                                                        *
- * LastModified: Jul 8, 2014                              *
+ * LastModified: Jan 28, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -382,7 +382,9 @@ namespace Hprose {
             refer->set(map.ref());
             int32_t count = stream->readint(TagOpenbrace);
             for (int32_t i = 0; i < count; ++i) {
-                map.set(unserialize(), unserialize());
+                Php::Value key = unserialize();
+                Php::Value value = unserialize();
+                map.set(key, value);
             }
             stream->skip(1);
             return map;
