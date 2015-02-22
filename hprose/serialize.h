@@ -93,13 +93,13 @@ namespace Hprose {
         .add("hprose_serialize_list",
              &serialize_list,
              {
-                 Php::ByRef("a", Php::Type::Array),
+                 Php::ByVal("a", Php::Type::Array),
                  Php::ByVal("simple", Php::Type::Bool, false)
              })
         .add("hprose_serialize",
              &serialize,
              {
-                 Php::ByRef("v", Php::Type::Null),
+                 Php::ByVal("v", Php::Type::Null),
                  Php::ByVal("simple", Php::Type::Bool, false)
              });
     }
