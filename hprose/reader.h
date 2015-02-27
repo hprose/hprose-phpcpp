@@ -13,7 +13,7 @@
  *                                                        *
  * hprose reader class for php-cpp.                       *
  *                                                        *
- * LastModified: Jan 28, 2015                             *
+ * LastModified: Feb 27, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -123,7 +123,7 @@ namespace Hprose {
             int32_t count = stream->readint(TagOpenbrace);
             std::vector<std::string> fields;
             for (int32_t i = 0; i < count; ++i) {
-                fields.push_back(readString());
+                fields.push_back(_readString());
             }
             stream->skip(1);
             classref.push_back(std::move(std::make_pair(classname, fields)));
@@ -328,6 +328,16 @@ namespace Hprose {
             refer->set(value);
             return value;
         }
+        Php::Value _readString() {
+            char tag = stream->getchar();
+            switch (tag) {
+                case TagUTF8Char: return readUTF8CharWithoutTag();
+                case TagString: return readStringWithoutTag();
+                case TagRef: return readRef();
+                default: unexpectedTag(tag); break;
+            }
+            return nullptr;
+        }
         Php::Value readString() {
             char tag = stream->getchar();
             switch (tag) {
@@ -477,7 +487,7 @@ namespace Hprose {
         c.method("__construct",
                  &Hprose::Reader::__construct,
                  {
-                     Php::ByRef("stream", "HproseStringStream"),
+                     Php::ByVal("stream", "HproseStringStream"),
                      Php::ByVal("simple", Php::Type::Bool, false)
                  })
         .method("unserialize",

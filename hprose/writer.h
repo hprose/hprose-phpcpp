@@ -13,7 +13,7 @@
  *                                                        *
  * hprose writer class for php-cpp.                       *
  *                                                        *
- * LastModified: Aug 16, 2014                             *
+ * LastModified: Feb 27, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -470,7 +470,7 @@ namespace Hprose {
         c.method("__construct",
                  &Hprose::Writer::__construct,
                  {
-                     Php::ByRef("stream", "HproseStringStream"),
+                     Php::ByVal("stream", "HproseStringStream"),
                      Php::ByVal("simple", Php::Type::Bool, false)
                  })
         .method("serialize",
@@ -576,12 +576,12 @@ namespace Hprose {
         .method("writeObject",
                 &Hprose::Writer::writeObject,
                 {
-                    Php::ByRef("list", Php::Type::Object)
+                    Php::ByVal("obj", Php::Type::Object)
                 })
         .method("writeObjectWithRef",
                 &Hprose::Writer::writeObjectWithRef,
                 {
-                    Php::ByRef("list", Php::Type::Object)
+                    Php::ByVal("obj", Php::Type::Object)
                 })
         .method("reset", &Hprose::Writer::reset);
         ext.add(std::move(c));

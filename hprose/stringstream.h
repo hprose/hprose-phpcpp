@@ -13,7 +13,7 @@
  *                                                        *
  * hprose stringstream class for php-cpp.                 *
  *                                                        *
- * LastModified: Jul 24, 2014                             *
+ * LastModified: Feb 27, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -36,11 +36,6 @@ namespace Hprose {
         StringStream(const std::string str) : buffer(str), pos(0), _mark(-1) {
         }
         virtual ~StringStream() {}
-        void init(std::string str) {
-            buffer = str;
-            pos = 0;
-            _mark = -1;
-        }
         void close() {
             buffer.clear();
             pos = 0;
@@ -89,15 +84,6 @@ namespace Hprose {
                 c = getchar();
             }
             return result;
-        }
-        int seek(const int32_t offset, const int whence = SEEK_SET) {
-            switch (whence) {
-                case SEEK_SET: pos = offset; break;
-                case SEEK_CUR: pos += offset; break;
-                case SEEK_END: pos = size() + offset; break;
-            }
-            _mark = -1;
-            return 0;
         }
         inline void mark() {
             _mark = pos;
@@ -154,11 +140,8 @@ namespace Hprose {
         // for PHP
         void __construct(Php::Parameters &params) {
             if (params.size() == 1) {
-                init(params[0]);
+                buffer = params[0].stringValue();
             }
-        }
-        void init(Php::Parameters &params) {
-            init(params[0]);
         }
         Php::Value length() const {
             return (int64_t)size();
@@ -174,13 +157,6 @@ namespace Hprose {
         }
         Php::Value readuntil(Php::Parameters &params) {
             return readuntil(params[0].stringValue()[0]);
-        }
-        Php::Value seek(Php::Parameters &params) {
-            switch (params.size()) {
-                case 1: return seek(params[0]);
-                case 2: return seek(params[0], params[1]);
-                default: return -1;
-            }
         }
         void skip(Php::Parameters &params) {
             skip(params[0]);
@@ -223,9 +199,6 @@ namespace Hprose {
         c.method("__construct",
                  &Hprose::StringStream::__construct,
                  { Php::ByVal("str", Php::Type::String, false) })
-         .method("init",
-                 &Hprose::StringStream::init,
-                 { Php::ByVal("str", Php::Type::String) })
          .method("close", &Hprose::StringStream::close)
          .method("length", &Hprose::StringStream::length)
          .method("getc", &Hprose::StringStream::getc)
@@ -236,12 +209,6 @@ namespace Hprose {
          .method("readuntil",
                  &Hprose::StringStream::readuntil,
                  { Php::ByVal("tag", Php::Type::String) })
-         .method("seek",
-                 &Hprose::StringStream::seek,
-                 {
-                     Php::ByVal("offset", Php::Type::Numeric),
-                     Php::ByVal("whence", Php::Type::Numeric, false)
-                 })
          .method("mark", &Hprose::StringStream::mark)
          .method("unmark", &Hprose::StringStream::unmark)
          .method("reset", &Hprose::StringStream::reset)
@@ -260,6 +227,5 @@ namespace Hprose {
         ext.add(std::move(c));
     }
 }
-
 
 #endif /* HPROSE_STRINGSTREAM_H_ */
