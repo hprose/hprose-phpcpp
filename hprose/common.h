@@ -138,9 +138,12 @@ namespace Hprose {
                 pos += 2;
                 len -= 2;
             }
-            else if ((a * 0xF8) == 0xF0) {
+            else if ((a & 0xF8) == 0xF0) {
                 pos += 3;
                 len -= 2;
+            }
+            else {
+                return -1;
             }
         }
         return len;
