@@ -13,7 +13,7 @@
  *                                                        *
  * hprose reader class for php-cpp.                       *
  *                                                        *
- * LastModified: Feb 27, 2015                             *
+ * LastModified: Mar 21, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -460,6 +460,7 @@ namespace Hprose {
                 case TagBytes: return readBytesWithoutTag();
                 case TagUTF8Char: return readUTF8CharWithoutTag();
                 case TagString: return readStringWithoutTag();
+                case TagGuid: return readGuidWithoutTag();
                 case TagList: return readListWithoutTag();
                 case TagMap: return readMapWithoutTag();
                 case TagClass: readClass(); return readObject();
